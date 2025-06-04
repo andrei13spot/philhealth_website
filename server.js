@@ -2,20 +2,40 @@ const express = require('express');
 const mysql = require('mysql2');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
+const path = require('path');
 const app = express();
 app.use(express.json());
 app.use(cors());
 
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
+
 const db = mysql.createConnection({
-  host: 'localhost',
+  host: '127.0.0.1',
   user: 'root',
-  password: 'yourpassword', // Change this to your MySQL root password
-  database: 'philhealth_db'
+  password: 'password',
+  database: 'philhealth_db',
+  port: 3306
 });
 
+// Add error handling for database connection
 db.connect(err => {
-  if (err) throw err;
+  if (err) {
+    console.error('Error connecting to MySQL:', err);
+    return;
+  }
   console.log('Connected to MySQL');
+});
+
+// Add error handling for database connection loss
+db.on('error', (err) => {
+  console.error('MySQL error:', err);
+  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+    console.log('Attempting to reconnect to MySQL...');
+    db.connect();
+  } else {
+    throw err;
+  }
 });
 
 // Registration endpoint (member + dependents)
@@ -73,6 +93,11 @@ app.post('/login', (req, res) => {
     if (!match) return res.status(401).json({ error: 'Invalid credentials' });
     res.json({ success: true, pin: account.pin });
   });
+});
+
+// Serve the main page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(3000, () => console.log('Server running on port 3000')); 
