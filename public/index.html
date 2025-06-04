@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhilHealth Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-card">
+            <div class="logo">
+                <img src="topbarlogo.png" alt="PhilHealth Logo">
+            </div>
+            <h2><i class="fa fa-fw fa-users"></i> Member Portal</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="text" id="philhealthId" name="philhealthId" required placeholder="PhilHealth Identification Number" pattern="\d{2}-\d{8}-\d{1}" maxlength="13" title="Format: 12-12345678-9">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" name="password" required placeholder="Password">
+                </div>
+                <div class="form-group captcha-group">
+                    <div class="captcha-container">
+                        <div id="captchaDisplay" class="captcha-display"></div>                    
+                    </div>
+                    <input type="text" id="captcha" name="captcha" required placeholder="Enter the text shown above">
+                </div>
+                <button type="button" id="refreshCaptcha" class="refresh-btn">↻ Refresh CAPTCHA</button>
+                <button type="submit" class="login-btn">🗝 Log In</button>
+            </form>
+            <div class="links">
+                <a href="forgot-password.html" class="forgot-password">Forgot Password?</a>
+                <a href="create-account.html" class="create-account">Create Account</a>
+                <a href="register.html" class="member-registration">Member Registration</a>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

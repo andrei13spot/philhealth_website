@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Created - PhilHealth</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="account-success.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <header class="register-header">
+        <div class="header-left">
+            <img src="topbarlogo.png" alt="PhilHealth Logo" class="header-logo">
+        </div>
+        <div class="header-right">
+            <a href="index.html" class="home-btn"><i class="fa fa-home"></i> Home</a>
+        </div>
+    </header>
+    <div class="confirmation-bg">
+        <div class="confirmation-card">
+            <div class="confirmation-title"><i class="fa fa-check-circle" style="color:#4caf50;"></i> Account Created Successfully!</div>
+            <div class="confirmation-message">
+                Your account has been created successfully.<br><br>
+                <b>Email used for this account:</b>
+                <div class="confirmation-email" id="emailDisplay">user@email.com</div>
+                You can now log in to access your PhilHealth digital services.
+            </div>
+            <a href="index.html" class="login-btn">Go to Login</a>
+        </div>
+    </div>
+    <script>
+    // Optionally, set the email dynamically if passed via query string or localStorage
+    // Example: account-success.html?email=someone@email.com
+    const params = new URLSearchParams(window.location.search);
+    const email = params.get('email');
+    if(email) document.getElementById('emailDisplay').textContent = email;
+    </script>
+</body>
+</html> 
