@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>User Profile</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/script.js"></script>
+    <link rel="stylesheet" href="/styles2.css" />
+  </head>
+
+  <body class="bg-light">
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+          <img
+            src="https://memberinquiry.philhealth.gov.ph/member/javax.faces.resource/images/login/philhealth-logo.png.xhtml?ln=avalon-layout"
+            alt="PhilHealth Logo"
+            width="120"
+            height="47"
+            class="d-inline-block align-text-top"
+          />
+        </a>
+        <button
+          class="toggleSidebar btn btn-outline-light me-2"
+          id="toggleSidebar"
+        >
+          ☰
+        </button>
+      </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div id="sidebarMenu">
+      <p id="FullName"><b>DELA CRUZ, JUAN SANTOS</b></p>
+      <p id="userID">01-012345678-9</p>
+      <hr />
+      <a href="/dashboard.html">Member Info</a>
+      <a href="/user-profile.html">User Info</a>
+      <a href="#">Logout</a>
+    </div>
+
+    <!-- Download Button -->
+ <div class="text-center">
+  <button type="button" class="btn btn-primary btn-sm" id="downloadButton">
+    Print PDF
+  </button>
+</div>
+
+
+<div id="accordion" class="main-page-content mt-4 mb-3">
+  <div class="card shadow-sm">
+    <div class="card-header" id="headingOne">
+      <h5 class="mb-0">
+        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          Member Information
+        </button>
+      </h5>
+    </div>
+    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+      <div class="card-body">
+        <dl class="row">
+          <dt class="col-sm-4">Philhealth Identification Number:</dt>
+          <dd class="col-sm-8" id="userID">01-012345678-9</dd>
+          <dt class="col-sm-4">Last Name:</dt>
+          <dd class="col-sm-8" id="infoLastName">Dela Cruz</dd>
+          <dt class="col-sm-4">First Name:</dt>
+          <dd class="col-sm-8" id="infoFirstName">Juan</dd>
+          <dt class="col-sm-4">Middle Name:</dt>
+          <dd class="col-sm-8" id="infoMiddleName">Santos</dd>
+          <dt class="col-sm-4">Name Extension:</dt>
+          <dd class="col-sm-8" id="infoNameExtension">Jr.</dd>
+          <dt class="col-sm-4">Sex:</dt>
+          <dd class="col-sm-8" id="infoSex">Male</dd>
+          <dt class="col-sm-4">Date of Birth:</dt>
+          <dd class="col-sm-8" id="infoDob">1985-07-15</dd>
+          <dt class="col-sm-4">Citizenship:</dt>
+          <dd class="col-sm-8" id="infoCitizenship">Filipino</dd>
+          <dt class="col-sm-4">Civil Status:</dt>
+          <dd class="col-sm-8" id="infoCivilStatus">Married</dd>
+          <dt class="col-sm-4">PhilSys Card Number:</dt>
+          <dd class="col-sm-8" id="infoPhilSys">1234-5678-9012-3456</dd>
+          <dt class="col-sm-4">TIN Number:</dt>
+          <dd class="col-sm-8" id="infoTin">123-456-789-000</dd>
+          <dt class="col-sm-4">Mother Full Name:</dt>
+          <dd class="col-sm-8" id="infoMotherName">Maria Santos</dd>
+          <dt class="col-sm-4">Spouse Full Name:</dt>
+          <dd class="col-sm-8" id="infoSpouseName">Juana Gomez Dela Cruz</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact Details Card -->
+  <div class="card shadow-sm">
+    <div class="card-header" id="headingTwo">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          Contact Details
+        </button>
+      </h5>
+    </div>
+    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+      <div class="card-body">
+        <dl class="row">
+          <dt class="col-sm-4">Home Number:</dt>
+          <dd class="col-sm-8" id="infoHomeNumber">(02) 8123-4567</dd>
+          <dt class="col-sm-4">Mobile Number *:</dt>
+          <dd class="col-sm-8" id="infoMobileNumber">0917-987-6543</dd>
+          <dt class="col-sm-4">Email Address:</dt>
+          <dd class="col-sm-8" id="infoEmail">juan.delacruz@email.com</dd>
+          <dt class="col-sm-4">Permanent Address *:</dt>
+          <dd class="col-sm-8" id="infoPermanentAddress">123 Rizal St, Brgy. Pag-asa, Quezon City</dd>
+          <dt class="col-sm-4">Business DL:</dt>
+          <dd class="col-sm-8" id="infoBusinessDl">(02) 8888-1234</dd>
+          <dt class="col-sm-4">Mailing Address:</dt>
+          <dd class="col-sm-8" id="infoMailingAddress">Same as Permanent Address</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dependent Details Card -->
+  <div class="card shadow-sm">
+    <div class="card-header" id="headingThree">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          Dependent Details
+        </button>
+      </h5>
+    </div>
+    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+      <div class="card-body">
+        <div id="dependentInfoList">
+          <div class="dependent-summary-item mb-3">
+            <h6 class="mb-2">Dependent 1:</h6>
+            <dl class="row">
+              <dt class="col-sm-4">Full Name:</dt>
+              <dd class="col-sm-8" id="infoDependentName1">Maria Dela Cruz</dd>
+              <dt class="col-sm-4">Sex *:</dt>
+              <dd class="col-sm-8" id="infoDependentSex1">Female</dd>
+              <dt class="col-sm-4">Relationship *:</dt>
+              <dd class="col-sm-8" id="infoDependentRelationship1">Child</dd>
+              <dt class="col-sm-4">Date of Birth *:</dt>
+              <dd class="col-sm-8" id="infoDependentDob1">2010-11-20</dd>
+              <dt class="col-sm-4">Citizenship *:</dt>
+              <dd class="col-sm-8" id="infoDependentCitizenship1">Filipino</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  </body>
+</html>

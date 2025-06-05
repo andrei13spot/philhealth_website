@@ -1,0 +1,216 @@
+body {
+  padding-top: 56px;
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1040;
+  background-color: #729e3e;
+ 
+}
+
+
+#sidebarMenu {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  width: 250px;
+  height: calc(100% - 56px);
+  background-color: #343a40;
+  overflow-y: auto;
+  transition: left 0.3s ease;
+  z-index: 1030;
+  padding-top: 1rem;
+}
+
+#sidebarMenu a {
+  display: block;
+  color: white;
+  padding: 0.75rem 1.25rem;
+  text-decoration: none;
+}
+
+#sidebarMenu a:hover {
+  background-color: #495057;
+}
+
+
+
+.navbar-brand {
+  margin-right: 90%;
+}
+
+
+
+.card.shadow-sm {
+ 
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 25px !important;
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.card.shadow-sm:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid #dee2e6;
+  border-top-left-radius: calc(8px - 1px);
+  border-top-right-radius: calc(8px - 1px);
+}
+
+.card-header h5 {
+  margin-bottom: 0;
+  font-size: 2rem;
+  font-weight: 500;
+}
+
+
+
+
+.card-header .btn-link {
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-header .btn-link:hover,
+.card-header .btn-link:focus {
+  color: #007bff;
+  text-decoration: none;
+}
+
+
+.card-header .btn-link::after {
+  content: "\25BC";
+  font-size: 1em;
+  margin-left: 10px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.card-header .btn-link:not(.collapsed)::after {
+  transform: rotate(-180deg);
+}
+
+.card-body {
+  padding: 1.5rem;
+  font-size: 1.2rem;
+  color: #454545;
+}
+
+
+.card-body dl.row dt {
+  font-weight: 600;
+  color: #212529;
+  padding-bottom: 0.5rem;
+}
+
+.card-body dl.row dd {
+  color: #555;
+  padding-bottom: 0.5rem;
+}
+
+
+#dependentInfoList .dependent-summary-item {
+  padding: 1rem;
+  border: 1px dashed #ced4da;
+  border-radius: 6px;
+  background-color: #fcfcfc;
+}
+
+#dependentInfoList .dependent-summary-item:not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+#dependentInfoList h6 {
+  color: #007bff;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+
+#memberInfoCardHeader,
+#contactDetailsCardHeader,
+#dependentDetailsCardHeader {
+  background-color: #e0e2e4;
+}
+
+
+#accordion .card, .card {
+  width: 1000px;
+  margin-left: 26%;
+}
+
+/* Navbar */
+
+.navbar-brand {
+  width: 30px;
+  height: 24px;
+  margin-top: -40px;
+  margin-right: 5%;
+}
+
+
+#sidebarMenu p {
+  color: white;
+  text-align: left;
+  padding: 0px 20px;
+}
+
+#sidebarMenu hr {
+  border: 1.5px solid rgb(27, 27, 27);
+}
+
+.toggleSidebar {
+  margin-right: 87.5%;
+}
+
+#FullName {
+  font-size: 15px;
+}
+
+
+#downloadButton
+{
+    padding: 10px 100px;
+    font-size: 20px;
+    margin-top: 20px;    
+}
+
+#changePasswordButton
+{
+    padding: 10px 50px;
+    font-size: 20px;
+    margin-top: 20px;  
+}
+
+
+#sidebarMenu a {
+  display: block;
+  color: white;
+  padding: 0.75rem 1.25rem;
+  text-decoration: none;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+#sidebarMenu a:hover {
+  background-color: #495057;
+  color: #ffffff;
+}
+
+
+#sidebarMenu a.active {
+  background-color: #007bff;
+  color: #ffffff;          
+  font-weight: bold;      
+}
