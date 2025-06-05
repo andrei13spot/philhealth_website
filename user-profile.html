@@ -64,17 +64,32 @@
           <dt class="col-sm-5">Mobile Number:</dt>
           <dd class="col-sm-7" id="userMobileNumber">0917-987-6543</dd>
         </dl>
-        <hr />
-        <div class="text-center">
-          <button
-            type="button"
-            class="btn btn-primary btn-sm"
-            id="changePasswordButton"
-          >
-            Change Password
-          </button>
-        </div>
       </div>
+
+      </div>
+        <!-- Change Password Card -->
+        <div class="card shadow-sm" id="changePasswordCard">
+            <div class="card-header">
+                <h5 class="mb-0">Change Password</h5>
+            </div>
+            <div class="card-body">
+                <form id="actualChangePasswordForm"> <!-- Form to handle password change -->
+                    <div class="form-group mb-3">
+                        <label for="oldPassword">Old Password</label>
+                        <input type="password" class="form-control form-control-sm" id="oldPassword" placeholder="Enter old password" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" class="form-control form-control-sm" id="newPassword" placeholder="Enter new password" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="confirmNewPassword">Confirm New Password</label>
+                        <input type="password" class="form-control form-control-sm" id="confirmNewPassword" placeholder="Re-enter new password" required>
+                    </div>
+                    <button type="submit" class="btn btn-warning btn-sm">Change Password</button>
+                </form>
+            </div>
+        </div>
     </div>
   </body>
 </html>

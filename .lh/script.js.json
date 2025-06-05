@@ -1,0 +1,18 @@
+{
+    "sourceFile": "script.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1749120154153,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1749120154152,
+            "name": "Commit-0",
+            "content": "// Sidebar\r\ndocument.addEventListener('DOMContentLoaded', function() {\r\n  const toggleSidebar = document.getElementById(\"toggleSidebar\");\r\n  const sidebar = document.getElementById(\"sidebarMenu\");\r\n  let sidebarVisible = true; // Track sidebar state, starts visible\r\n\r\n  if (toggleSidebar && sidebar) {\r\n    toggleSidebar.addEventListener(\"click\", function (e) {\r\n      e.preventDefault();\r\n      e.stopPropagation();\r\n      \r\n      // Toggle the sidebar visibility\r\n      if (sidebarVisible) {\r\n        sidebar.style.left = \"-250px\"; // Hide\r\n        sidebarVisible = false;\r\n      } else {\r\n        sidebar.style.left = \"0px\"; // Show\r\n        sidebarVisible = true;\r\n      }\r\n    });\r\n\r\n    // Prevent sidebar from closing when clicking inside it\r\n    sidebar.addEventListener(\"click\", function (e) {\r\n      e.stopPropagation();\r\n    });\r\n  }\r\n});\r\n\r\n// Highlight page sidebar\r\n      \r\ndocument.addEventListener('DOMContentLoaded', function() {\r\n  const currentPagePath = window.location.pathname; // Get the path of the current page (e.g., \"/user-profile.html\")\r\n  const sidebarLinks = document.querySelectorAll('#sidebarMenu a');\r\n\r\n  sidebarLinks.forEach(link => {\r\n    // FIRST, remove 'active' class from ALL links to ensure a clean slate.\r\n    link.classList.remove('active');\r\n\r\n    const originalHref = link.getAttribute('href'); // Get the literal href value (e.g., \"#\", \"/dashboard.html\")\r\n\r\n    // If the link's href attribute starts with \"#\" (e.g., it's a \"Logout\" link or an on-page anchor),\r\n    // we typically don't want to mark it as the \"active page\" in the navigation. So, we skip it.\r\n    if (originalHref && originalHref.startsWith('#')) {\r\n      return; // Go to the next link in the loop\r\n    }\r\n\r\n\r\n    let linkPath;\r\n    try {\r\n      // Create a URL object from the link's fully resolved href to easily get the pathname\r\n      const linkUrl = new URL(link.href);\r\n      linkPath = linkUrl.pathname;\r\n    } catch (e) {\r\n      // If link.href is somehow invalid, log it and skip.\r\n      console.warn(\"Could not parse href for link:\", link, e);\r\n      return;\r\n    }\r\n\r\n    // Now, compare the link's path with the current page's path.\r\n    // Also, handle common case where the root (\"/\") might be represented by \"index.html\" or a specific dashboard file in links.\r\n    if (linkPath === currentPagePath) {\r\n      link.classList.add('active');\r\n    } else if (currentPagePath === '/' && (linkPath === '/index.html' || linkPath === '/dashboard.html' /* if dashboard.html is your root page */)) {\r\n      // If current page is the root, and this link points to a common root file\r\n      link.classList.add('active');\r\n    } else if (linkPath === '/' && (currentPagePath === '/index.html' || currentPagePath === '/dashboard.html')) {\r\n      // If current page is a common root file, and this link points to the root\r\n      link.classList.add('active');\r\n    }\r\n  });\r\n});\r\n"
+        }
+    ]
+}
