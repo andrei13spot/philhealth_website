@@ -590,10 +590,6 @@ input::placeholder {
     font-family: 'Century Gothic', Arial, Helvetica, sans-serif;
 }
 
-/* Remove old green-bar styles */
-.green-bar {
-    display: none;
-}
 
 /* Adjust spacing for the Create Account section */
 .section:last-of-type {
@@ -663,4 +659,9 @@ input::placeholder {
 .terms-box.white {
     background: #fff;
     border: 1px solid #bfc9d1;
+}
+
+#captcha {
+    width: 300px;
+    box-sizing: border-box;
 }

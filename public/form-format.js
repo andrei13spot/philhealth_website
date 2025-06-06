@@ -62,35 +62,30 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Dependent logic
+    // Dependent Yes/No logic
+    const addDependentsYes = document.getElementById('addDependentsYes');
+    const addDependentsNo = document.getElementById('addDependentsNo');
+    const dependentFields = document.getElementById('dependentFields');
     const depFullName = document.getElementById('depFullName');
     const depSex = document.getElementById('depSex');
     const depRelationship = document.getElementById('depRelationship');
     const depDob = document.getElementById('depDob');
     const depCitizenship = document.getElementById('depCitizenship');
     const depPWD = document.getElementById('depPWD');
-    const addBtn = document.querySelector('.dependent-btns .login-btn:nth-child(1)');
-    const clearBtn = document.querySelector('.dependent-btns .login-btn:nth-child(2)');
+    const addBtn = document.getElementById('addDependentBtn');
+    const clearBtn = document.getElementById('clearDependentBtn');
     const depTableBody = document.getElementById('dependentsTableBody');
 
     let dependents = [];
 
-    function parseFullName(fullName) {
-        // Try to split into Last, First, Extension, Middle (PhilHealth style: Last, First, Extension, Middle)
-        // Accepts: LastName, FirstName, MiddleName, Extension (comma or space separated)
-        let last = '', first = '', ext = '', middle = '';
-        if (!fullName) return { last, first, ext, middle };
-        let parts = fullName.split(',').map(s => s.trim());
-        if (parts.length === 4) {
-            [last, first, middle, ext] = parts;
-        } else if (parts.length === 3) {
-            [last, first, middle] = parts;
-        } else if (parts.length === 2) {
-            [last, first] = parts;
-        } else if (parts.length === 1) {
-            last = parts[0];
-        }
-        return { last, first, ext, middle };
+    function setDependentFieldsRequired(required) {
+        [depFullName, depSex, depRelationship, depDob, depCitizenship, depPWD].forEach(field => {
+            if (required) {
+                field.setAttribute('required', 'required');
+            } else {
+                field.removeAttribute('required');
+            }
+        });
     }
 
     function renderDependentsTable() {
@@ -152,19 +147,173 @@ document.addEventListener('DOMContentLoaded', function() {
 
     renderDependentsTable();
 
-    // Membership Type: required
-    const memberType = document.getElementById('memberType');
-    if (memberType) memberType.setAttribute('required', 'required');
+    // Show/hide and require/unrequire dependent fields based on Yes/No
+    function updateDependentSection() {
+        const depAsterisks = document.querySelectorAll('.asterisk-dependent');
+        if (addDependentsYes.checked) {
+            dependentFields.style.display = '';
+            setDependentFieldsRequired(true);
+            depAsterisks.forEach(el => el.style.display = 'inline');
+        } else {
+            dependentFields.style.display = 'none';
+            setDependentFieldsRequired(false);
+            depAsterisks.forEach(el => el.style.display = 'none');
+        }
+    }
+    addDependentsYes.addEventListener('change', updateDependentSection);
+    addDependentsNo.addEventListener('change', updateDependentSection);
+    // Default: hide dependent fields
+    dependentFields.style.display = 'none';
+    setDependentFieldsRequired(false);
 
-    // Form submission: check all required fields
-    document.getElementById('memberForm').addEventListener('submit', function(e) {
-        // HTML5 validation will catch most issues, but you can add custom checks here if needed
-        // Example: check email format
+    // Membership Type: required
+    const memberType = document.getElementById('member_type');
+    if (memberType) {
+        memberType.setAttribute('required', 'required');
+    }
+
+    // Modal logic
+    const openWarningModalBtn = document.getElementById('openWarningModalBtn');
+    const warningModal = document.getElementById('warningModal');
+    const confirmCheckbox = document.getElementById('confirmCheckbox');
+    const finalSubmitBtn = document.getElementById('finalSubmitBtn');
+    const cancelModalBtn = document.getElementById('cancelModalBtn');
+    const memberForm = document.getElementById('memberForm');
+
+    // Helper: Validate member fields (no HTML5)
+    function validateMemberFields() {
+        let valid = true;
+        let firstInvalid = null;
+        // List of required member field IDs
+        const requiredFields = [
+            'member_type', 'memberFullName', 'sex', 'dateOfBirth', 'placeOfBirth', 'citizenship', 'civilStatus',
+            'motherFullName', 'mobileNo', 'permanentAddress', 'mailingAddress'
+        ];
+        requiredFields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && (!el.value || el.value.trim() === '')) {
+                valid = false;
+                if (!firstInvalid) firstInvalid = el;
+                el.style.borderColor = '#e53935';
+            } else if (el) {
+                el.style.borderColor = '';
+            }
+        });
+        // Email: if present, must be valid
+        const email = document.getElementById('email');
         if (email && email.value && !/^\S+@\S+\.\S+$/.test(email.value)) {
-            alert('Please enter a valid email address.');
-            email.focus();
-            e.preventDefault();
+            valid = false;
+            if (!firstInvalid) firstInvalid = email;
+            email.style.borderColor = '#e53935';
+        } else if (email) {
+            email.style.borderColor = '';
+        }
+        if (!valid && firstInvalid) firstInvalid.focus();
+        return valid;
+    }
+
+    // Helper: Validate dependents if required
+    function validateDependents() {
+        if (addDependentsYes.checked && dependents.length === 0) {
+            alert('You must add at least one dependent.');
             return false;
         }
+        return true;
+    }
+
+    // Open modal on submit button click
+    openWarningModalBtn.addEventListener('click', function() {
+        // Validate member fields
+        if (!validateMemberFields()) {
+            alert('Please fill out all required member fields correctly.');
+            return;
+        }
+        // Validate dependents if needed
+        if (!validateDependents()) {
+            return;
+        }
+        // Show modal
+        warningModal.style.display = 'flex';
+        confirmCheckbox.checked = false;
+        finalSubmitBtn.disabled = true;
+    });
+
+    // Enable Confirm & Submit only if checkbox is checked
+    confirmCheckbox.addEventListener('change', function() {
+        finalSubmitBtn.disabled = !this.checked;
+    });
+
+    // Cancel modal
+    cancelModalBtn.addEventListener('click', function() {
+        warningModal.style.display = 'none';
+    });
+
+    // Final submit
+    finalSubmitBtn.addEventListener('click', function() {
+        warningModal.style.display = 'none';
+        // Instead of submitting the form, send data via fetch to /register
+        const member = {};
+        // Collect all member fields
+        [
+            'member_type', 'memberFullName', 'sex', 'dateOfBirth', 'placeOfBirth', 'citizenship', 'civilStatus',
+            'philsysId', 'tin', 'motherFullName', 'spouseFullName', 'homeNo', 'mobileNo', 'email', 'permanentAddress', 'businessDl', 'mailingAddress'
+        ].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                // Map form fields to exact database column names
+                const fieldMap = {
+                    'memberFullName': 'member_full_name',
+                    'dateOfBirth': 'date_of_birth',
+                    'placeOfBirth': 'place_of_birth',
+                    'civilStatus': 'civil_status',
+                    'philsysId': 'philsys_id',
+                    'motherFullName': 'mother_full_name',
+                    'spouseFullName': 'spouse_full_name',
+                    'homeNo': 'home_no',
+                    'mobileNo': 'mobile_no',
+                    'email': 'email_address',
+                    'permanentAddress': 'permanent_address',
+                    'businessDl': 'business_dl',
+                    'mailingAddress': 'mailing_address'
+                };
+                const dbField = fieldMap[id] || id;
+                // Set empty strings to null for optional fields
+                if (el.value.trim() === '') {
+                    member[dbField] = null;
+                } else {
+                    member[dbField] = el.value;
+                }
+            }
+        });
+        // Prepare dependents array
+        const dependentsToSend = (addDependentsYes.checked) ? dependents : [];
+        
+        // Log the data being sent
+        console.log('Sending registration data:', {
+            member: member,
+            dependents: dependentsToSend
+        });
+
+        fetch('http://localhost:3000/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ member, dependents: dependentsToSend })
+        })
+        .then(res => {
+            console.log('Response status:', res.status);
+            return res.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);
+            if (data.success && data.pin) {
+                window.location.href = 'account-success.html?pin=' + encodeURIComponent(data.pin);
+            } else {
+                alert(data.error || 'Registration failed. Please try again.');
+            }
+        })
+        .catch(err => {
+            console.error('Registration error:', err);
+            alert('An error occurred during registration. Please try again.');
+        });
     });
 }); 

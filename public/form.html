@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="form-format.js" defer></script>
+    <link rel="icon" type="image/png" href="weblogo.png">
     <style>
+        /* Accordion and form styling for consistent UI */
         .accordion-section { margin-bottom: 18px; }
         .accordion-header {
             background: #f3f3f3;
@@ -127,35 +129,59 @@
             margin-left: 4px;
             cursor: pointer;
         }
+        .center-radio-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+            margin-bottom: 18px;
+        }
+        .radio-label {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            font-size: 1.08em;
+            cursor: pointer;
+        }
+        .radio-label input[type="radio"] {
+            margin-right: 8px;
+            accent-color: #8dc63f;
+            width: 18px;
+            height: 18px;
+        }
     </style>
 </head>
 <body>
+    <!-- Header and navigation: consistent across all user-interactive pages -->
     <header class="register-header">
         <div class="header-left">
             <img src="topbarlogo.png" alt="PhilHealth Logo" class="header-logo">
         </div>
         <div class="header-right">
-            <a href="homepage.html" class="home-btn"><i class="fa fa-home"></i> Home</a>
+            <a href="index.html" class="home-btn"><i class="fa fa-home"></i> Home</a>
         </div>
     </header>
     <div class="register-bg">
         <div class="register-card" style="max-width:1200px;">
             <h2 class="register-title">PhilHealth Member Registration</h2>
+            <!-- Registration form: collects all required user data for registration -->
             <form id="memberForm">
+                <!-- Membership type selection -->
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="memberType">Membership Type <span class="asterisk">*</span></label>
-                        <select id="memberType" name="memberType" required style="min-width: 260px; max-width: 320px; width: 100%; display: inline-block;">
+                        <label for="member_type">Membership Type <span class="asterisk">*</span></label>
+                        <select id="member_type" name="member_type" required style="min-width: 260px; max-width: 320px; width: 100%; display: inline-block;">
                             <option value="">SELECT MEMBERSHIP TYPE</option>
                             <option value="Direct Contributor">DIRECT CONTRIBUTOR</option>
                             <option value="Indirect Contributor">INDIRECT CONTRIBUTOR</option>
                         </select>
                     </div>
                 </div>
-                <!-- Accordion Sections -->
+                <!-- Accordion Sections: group related fields for clarity and UX -->
                 <div class="accordion-section">
                     <div class="accordion-header active"><span>Personal Details</span> <i class="fa fa-chevron-right"></i></div>
                     <div class="accordion-content" style="display:block;">
+                        <!-- Personal details fields: only required fields for registration -->
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="memberFullName">Member Full Name <span class="asterisk">*</span></label>
@@ -225,6 +251,7 @@
                 <div class="accordion-section">
                     <div class="accordion-header"><span>Contact Details</span> <i class="fa fa-chevron-right"></i></div>
                     <div class="accordion-content">
+                        <!-- Contact details fields: only required and visible fields -->
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="homeNo">Home Number</label>
@@ -252,6 +279,7 @@
                         <div class="form-row">
                             <div class="form-group mailing-address-group">
                                 <label for="mailingAddress">Mailing Address <span class="asterisk">*</span></label>
+                                <!-- Checkbox for copying permanent address -->
                                 <div id="sameAsCheckbox" class="ui-selectbooleancheckbox ui-chkbox ui-widget" style="font-weight:normal; font-family: Century Gothic; margin-bottom: 12px;">
                                     <div class="ui-helper-hidden-accessible">
                                         <input id="sameAsPermanent" type="checkbox" name="sameAsPermanent">
@@ -269,85 +297,107 @@
                 <div class="accordion-section">
                     <div class="accordion-header"><span>Dependent Details</span> <i class="fa fa-chevron-right"></i></div>
                     <div class="accordion-content">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="depFullName">Dependent Full Name <span class="asterisk">*</span></label>
-                                <input type="text" id="depFullName" name="depFullName" required maxlength="50" placeholder="First Name, Middle Name, Surname, Extension">
-                            </div>
-                            <div class="form-group">
-                                <label for="depSex">Sex <span class="asterisk">*</span></label>
-                                <select id="depSex" name="depSex" required>
-                                    <option value="">SELECT SEX</option>
-                                    <option value="M">Male</option>
-                                    <option value="F">Female</option>
-                                </select>
-                            </div>
+                        <!-- Dependent details: only if user wants to add dependents -->
+                        <div class="center-radio-row">
+                            <span style="font-weight:600;">Do you want to add dependents?</span>
+                            <label class="radio-label"><input type="radio" name="addDependents" id="addDependentsYes" value="yes">Yes</label>
+                            <label class="radio-label"><input type="radio" name="addDependents" id="addDependentsNo" value="no">No</label>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="depRelationship">Relationship <span class="asterisk">*</span></label>
-                                <select id="depRelationship" name="depRelationship" required>
-                                    <option value="">SELECT RELATIONSHIP</option>
-                                    <option value="Spouse">Spouse</option>
-                                    <option value="Child">Child</option>
-                                    <option value="Parent">Parent</option>
-                                    <option value="Other">Other</option>
-                                </select>
+                        <div id="dependentFields">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="depFullName">Dependent Full Name <span class="asterisk asterisk-dependent" style="display:none;">*</span></label>
+                                    <input type="text" id="depFullName" name="depFullName" maxlength="50" placeholder="First Name, Middle Name, Surname, Extension">
+                                </div>
+                                <div class="form-group">
+                                    <label for="depSex">Sex <span class="asterisk asterisk-dependent" style="display:none;">*</span></label>
+                                    <select id="depSex" name="depSex">
+                                        <option value="">SELECT SEX</option>
+                                        <option value="M">Male</option>
+                                        <option value="F">Female</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="depDob">Date of Birth <span class="asterisk">*</span></label>
-                                <input type="date" id="depDob" name="depDob" required pattern="\d{4}-\d{2}-\d{2}">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="depRelationship">Relationship <span class="asterisk asterisk-dependent" style="display:none;">*</span></label>
+                                    <select id="depRelationship" name="depRelationship">
+                                        <option value="">SELECT RELATIONSHIP</option>
+                                        <option value="Spouse">Spouse</option>
+                                        <option value="Child">Child</option>
+                                        <option value="Parent">Parent</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="depDob">Date of Birth <span class="asterisk asterisk-dependent" style="display:none;">*</span></label>
+                                    <input type="date" id="depDob" name="depDob" pattern="\d{4}-\d{2}-\d{2}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="depCitizenship">Citizenship <span class="asterisk asterisk-dependent" style="display:none;">*</span></label>
+                                    <select id="depCitizenship" name="depCitizenship">
+                                        <option value="">SELECT CITIZENSHIP</option>
+                                        <option value="Filipino">Filipino</option>
+                                        <option value="Dual Citizen">Dual Citizen</option>
+                                        <option value="Foreign National">Foreign National</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="depPWD">Dependent PWD <span class="asterisk asterisk-dependent" style="display:none;">*</span></label>
+                                    <select id="depPWD" name="depPWD">
+                                        <option value="">SELECT PWD</option>
+                                        <option value="yes">Yes</option>
+                                        <option value="no">No</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="depCitizenship">Citizenship <span class="asterisk">*</span></label>
-                                <select id="depCitizenship" name="depCitizenship" required>
-                                    <option value="">SELECT CITIZENSHIP</option>
-                                    <option value="Filipino">Filipino</option>
-                                    <option value="Dual Citizen">Dual Citizen</option>
-                                    <option value="Foreign National">Foreign National</option>
-                                </select>
+                            <div class="dependent-btns">
+                                <button type="button" class="login-btn" style="background:#8dc63f;" id="addDependentBtn">✔ Add as Dependent</button>
+                                <button type="button" class="login-btn" style="background:#bfc9d1;color:#222;" id="clearDependentBtn">X Clear Dependent Details</button>
                             </div>
-                            <div class="form-group">
-                                <label for="depPWD">Dependent PWD <span class="asterisk">*</span></label>
-                                <select id="depPWD" name="depPWD" required>
-                                    <option value="">SELECT PWD</option>
-                                    <option value="yes">Yes</option>
-                                    <option value="no">No</option>
-                                </select>
+                            <div style="margin-top:24px;">
+                                <b style="font-family:Century Gothic; font-size:1.05em;">LIST OF ADDED DEPENDENTS</b>
+                                <table id="dependentsTable" style="width:100%;margin-top:10px;border-collapse:collapse;font-family:Century Gothic;font-size:0.98em;">
+                                    <thead style="background:#f3f3f3;">
+                                        <tr>
+                                            <th style="border:1px solid #bfc9d1;padding:6px 8px;">Relationship</th>
+                                            <th style="border:1px solid #bfc9d1;padding:6px 8px;">Full Name</th>
+                                            <th style="border:1px solid #bfc9d1;padding:6px 8px;">Date of Birth</th>
+                                            <th style="border:1px solid #bfc9d1;padding:6px 8px;">Sex</th>
+                                            <th style="border:1px solid #bfc9d1;padding:6px 8px;">Citizenship</th>
+                                            <th style="border:1px solid #bfc9d1;padding:6px 8px;">Disability</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dependentsTableBody">
+                                        <tr><td colspan="6" style="text-align:left;padding:8px 10px;">No records found.</td></tr>
+                                    </tbody>
+                                </table>
                             </div>
-                        </div>
-                        <div class="dependent-btns">
-                            <button type="button" class="login-btn" style="background:#8dc63f;">✔ Add as Dependent</button>
-                            <button type="button" class="login-btn" style="background:#bfc9d1;color:#222;">X Clear Dependent Details</button>
-                        </div>
-                        <div style="margin-top:24px;">
-                            <b style="font-family:Century Gothic; font-size:1.05em;">LIST OF ADDED DEPENDENTS</b>
-                            <table id="dependentsTable" style="width:100%;margin-top:10px;border-collapse:collapse;font-family:Century Gothic;font-size:0.98em;">
-                                <thead style="background:#f3f3f3;">
-                                    <tr>
-                                        <th style="border:1px solid #bfc9d1;padding:6px 8px;">Relationship</th>
-                                        <th style="border:1px solid #bfc9d1;padding:6px 8px;">Full Name</th>
-                                        <th style="border:1px solid #bfc9d1;padding:6px 8px;">Date of Birth</th>
-                                        <th style="border:1px solid #bfc9d1;padding:6px 8px;">Sex</th>
-                                        <th style="border:1px solid #bfc9d1;padding:6px 8px;">Citizenship</th>
-                                        <th style="border:1px solid #bfc9d1;padding:6px 8px;">Disability</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="dependentsTableBody">
-                                    <tr><td colspan="6" style="text-align:left;padding:8px 10px;">No records found.</td></tr>
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                 </div>
                 <div style="margin-top:32px;">
-                    <button type="submit" class="login-btn" style="width:260px;">SUBMIT REGISTRATION</button>
+                    <!-- Submit button triggers modal for final confirmation -->
+                    <button type="button" class="login-btn" style="width:260px;" id="openWarningModalBtn">SUBMIT REGISTRATION</button>
                 </div>
             </form>
         </div>
     </div>
+    <!-- Custom Warning Modal for user confirmation before final submission -->
+    <div id="warningModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.35);z-index:9999;align-items:center;justify-content:center;">
+        <div style="background:#fff;padding:32px 28px 24px 28px;border-radius:10px;max-width:400px;width:90vw;box-shadow:0 2px 16px rgba(0,0,0,0.13);text-align:center;position:relative;">
+            <div style="font-size:1.15em;margin-bottom:18px;color:#e53935;font-weight:600;">Please review your information before submitting.</div>
+            <div style="font-size:1em;margin-bottom:18px;color:#333;">By submitting, you confirm that all information is valid and true. False information may result in application rejection.</div>
+            <label style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;">
+                <input type="checkbox" id="confirmCheckbox" style="width:18px;height:18px;">
+                <span style="font-size:1em;">I have reviewed my information and confirm it is correct and true.</span>
+            </label>
+            <button id="finalSubmitBtn" class="login-btn" style="width:180px;" disabled>Confirm & Submit</button>
+            <button id="cancelModalBtn" class="login-btn" style="width:120px;background:#bfc9d1;color:#222;margin-left:12px;">Cancel</button>
+        </div>
+    </div>
     <script>
-    // Accordion logic
+    // Accordion logic for section toggling (UI consistency)
     document.querySelectorAll('.accordion-header').forEach(header => {
         header.addEventListener('click', function() {
             const isActive = this.classList.contains('active');
@@ -359,7 +409,7 @@
             }
         });
     });
-    // Address copy logic
+    // Address copy logic for "Same as Above" checkbox
     document.addEventListener('DOMContentLoaded', function() {
         const chk = document.getElementById('sameAsPermanent');
         const box = document.querySelector('.ui-chkbox-box');
@@ -379,7 +429,7 @@
             }
         });
     });
-    // No income logic
+    // No income logic (example of field-specific UI logic)
     document.getElementById('noIncome').addEventListener('change', function() {
         document.getElementById('monthlyIncome').disabled = this.checked;
         if (this.checked) document.getElementById('monthlyIncome').value = '';

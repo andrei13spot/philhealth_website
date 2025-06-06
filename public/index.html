@@ -6,6 +6,7 @@
     <title>PhilHealth Login</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="icon" type="image/png" href="weblogo.png">
 </head>
 <body>
     <div class="container">
@@ -16,7 +17,7 @@
             <h2><i class="fa fa-fw fa-users"></i> Member Portal</h2>
             <form id="loginForm">
                 <div class="form-group">
-                    <input type="text" id="philhealthId" name="philhealthId" required placeholder="PhilHealth Identification Number" pattern="\d{2}-\d{8}-\d{1}" maxlength="13" title="Format: 12-12345678-9">
+                    <input type="text" id="philhealthId" name="philhealthId" required placeholder="PhilHealth Identification Number" pattern="\d{2}-\d{9}-\d{1}" maxlength="14" title="Format: 01-123456789-0">
                 </div>
                 <div class="form-group">
                     <input type="password" id="password" name="password" required placeholder="Password">

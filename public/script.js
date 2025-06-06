@@ -31,46 +31,80 @@ document.getElementById('loginForm').addEventListener('submit', (e) => {
     
     const philhealthId = document.getElementById('philhealthId').value;
     const password = document.getElementById('password').value;
-    const captchaInput = document.getElementById('captcha').value;
+    
+    console.log('Form values:', {
+        philhealthId: philhealthId,
+        password: password
+    });
     
     // Basic validation
-    if (!philhealthId || !password || !captchaInput) {
+    if (!philhealthId || !password) {
         alert('Please fill in all fields');
         return;
     }
     
-    // Validate CAPTCHA
-    if (captchaInput.toUpperCase() !== currentCaptcha) {
-        alert('Invalid CAPTCHA. Please try again.');
-        currentCaptcha = generateCaptcha();
-        document.getElementById('captcha').value = '';
-        return;
-    }
+    // Send login request to server
+    const loginData = {
+        pin: philhealthId,
+        password: password
+    };
+    console.log('Sending login data:', loginData);
+    console.log('Stringified data:', JSON.stringify(loginData));
     
-    // For demo purposes, show success message
-    alert('Login successful! (This is a demo)');
-    
-    // Reset form
-    e.target.reset();
-    currentCaptcha = generateCaptcha();
+    fetch('http://localhost:3000/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(loginData)
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        if (!response.ok) {
+            return response.text().then(text => {
+                console.log('Error response text:', text);
+                throw new Error(`HTTP error! status: ${response.status}, message: ${text}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            window.location.href = `dashboard.html?pin=${encodeURIComponent(data.pin)}`;
+        } else {
+            alert(data.error || 'Login failed. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Login error:', error);
+        alert('An error occurred during login: ' + error.message);
+    });
 });
 
 // Auto-format PhilHealth Identification Number input
 const philhealthInput = document.getElementById('philhealthId');
 if (philhealthInput) {
-    philhealthInput.addEventListener('input', function(e) {
-        // Get the current value and remove any non-numeric characters
-        let value = e.target.value.replace(/[^0-9]/g, '');
-        
-        // Format the value
-        if (value.length > 0) {
-            if (value.length > 2) {
-                value = value.slice(0,2) + '-' + value.slice(2);
-            }
-            if (value.length > 11) {
-                value = value.slice(0,11) + '-' + value.slice(11,12);
-            }
-            e.target.value = value.slice(0,13);
+    // Prevent non-numeric input
+    philhealthInput.addEventListener('keypress', function(e) {
+        if (!/[\d]/.test(e.key)) {
+            e.preventDefault();
         }
+    });
+
+    philhealthInput.addEventListener('input', function(e) {
+        // Remove non-numeric characters
+        let value = e.target.value.replace(/[^0-9]/g, '');
+
+        // Format: 2 digits - 9 digits - 1 digit
+        if (value.length > 2) {
+            value = value.slice(0,2) + '-' + value.slice(2);
+        }
+        if (value.length > 12) {
+            value = value.slice(0,12) + '-' + value.slice(12,13);
+        }
+        e.target.value = value.slice(0,14); // 2+1+9+1+1+1 = 14 chars with hyphens
     });
 } 

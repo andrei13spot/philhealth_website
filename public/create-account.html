@@ -6,6 +6,7 @@
     <title>Member Portal Account Creation</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="icon" type="image/png" href="weblogo.png">
     <style>
         .info-bar {
             font-weight: bold;
@@ -18,7 +19,7 @@
             <img src="topbarlogo.png" alt="PhilHealth Logo" class="header-logo">
         </div>
         <div class="header-right">
-            <a href="homepage.html" class="home-btn"><i class="fa fa-home"></i> Home</a>
+            <a href="index.html" class="home-btn"><i class="fa fa-home"></i> Home</a>
         </div>
     </header>
     <div class="register-bg">
@@ -34,15 +35,11 @@
                     <div class="register-row-grid">
                         <div class="form-group">
                             <label for="philhealthId">*PhilHealth Identification Number</label>
-                            <input type="text" id="philhealthId" name="philhealthId" required placeholder="PhilHealth Identification Number" pattern="\d{2}-\d{8}-\d{1}" maxlength="13" title="Format: 12-12345678-9">
+                            <input type="text" id="philhealthId" name="philhealthId" required placeholder="PhilHealth Identification Number" pattern="\d{2}-\d{9}-\d{1}" maxlength="14" title="Format: 12-1234567890-1">
                         </div>
                         <div class="form-group">
-                            <label for="lastName">*Last Name</label>
-                            <input type="text" id="lastName" name="lastName" required placeholder="Last Name">
-                        </div>
-                        <div class="form-group">
-                            <label for="firstName">*First Name</label>
-                            <input type="text" id="firstName" name="firstName" required placeholder="First Name">
+                            <label for="fullName">*Full Name</label>
+                            <input type="text" id="fullName" name="fullName" required placeholder="Full Name">
                         </div>
                         <div class="form-group">
                             <label for="dateOfBirth">*Date of Birth</label>
@@ -61,8 +58,8 @@
                             <input type="email" id="email" name="email" required placeholder="Email Address">
                         </div>
                         <div class="form-group">
-                            <label for="mobile">*Mobile Number</label>
-                            <input type="tel" id="mobile" name="mobile" required placeholder="Mobile Number" pattern="[0-9]{11}" maxlength="11">
+                            <label for="mobileNo">*Mobile Number</label>
+                            <input type="tel" id="mobileNo" name="mobileNo" required placeholder="Mobile Number" pattern="[0-9]{11}" maxlength="11">
                         </div>
                     </div>
                 </div>
@@ -105,7 +102,7 @@
                 </div>
             </form>
             <div class="links">
-                <a href="homepage.html" class="back-to-login styled-link"><i class="fa fa-arrow-left"></i> Back to Login</a>
+                <a href="index.html" class="back-to-login styled-link"><i class="fa fa-arrow-left"></i> Back to Login</a>
             </div>
         </div>
     </div>

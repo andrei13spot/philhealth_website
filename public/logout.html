@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Logged Out - PhilHealth</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="icon" type="image/png" href="weblogo.png" />
+  <style>
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #fff;
+    }
+    header {
+      width: 100%;
+    }
+    .logout-card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+      padding: 48px 32px 36px 32px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+    }
+    .logout-card h2 {
+      color: #8dc63f;
+      margin-bottom: 20px;
+    }
+    .logout-card p {
+      margin-bottom: 18px;
+      color: #666;
+    }
+    .login-btn {
+      width: 200px;
+      display: inline-block;
+      background: #8dc63f;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 12px 0;
+      font-size: 1.08em;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-decoration: none;
+    }
+    .login-btn:hover {
+      background: #7ab82e;
+    }
+  </style>
+</head>
+<body>
+  <header class="register-header">
+    <div class="header-left">
+      <img src="topbarlogo.png" alt="PhilHealth Logo" class="header-logo">
+    </div>
+    <div class="header-right">
+      <a href="index.html" class="home-btn"><i class="fa fa-home"></i> Home</a>
+    </div>
+  </header>
+  <div class="logout-card">
+    <h2>You have been logged out</h2>
+    <p>Thank you for using the PhilHealth Member Portal.</p>
+    <a href="index.html" class="login-btn">Return to Login</a>
+  </div>
+</body>
+</html> 

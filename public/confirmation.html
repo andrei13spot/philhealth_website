@@ -14,14 +14,14 @@
             <img src="topbarlogo.png" alt="PhilHealth Logo" class="header-logo">
         </div>
         <div class="header-right">
-            <a href="homepage.html" class="home-btn"><i class="fa fa-home"></i> Home</a>
+            <a href="index.html" class="home-btn"><i class="fa fa-home"></i> Home</a>
         </div>
     </header>
     <div class="confirmation-bg">
         <div class="confirmation-card">
             <div class="confirmation-title"><i class="fa fa-check-circle" style="color:#4caf50;"></i> Registration Successful!</div>
             <div class="confirmation-message">
-                Your registration has been submitted successfully.<br><br>
+                Thank you for registering with PhilHealth! Your membership has been successfully processed.<br><br>
                 <b>Your PhilHealth Identification Number (PIN):</b>
                 <div class="confirmation-pin" id="pinDisplay">--</div>
                 Please keep your PIN safe. You will need it to access your PhilHealth digital services.<br><br>
@@ -31,16 +31,12 @@
         </div>
     </div>
     <script>
-    // Generate a random PIN in the format XX-XXXXXXXXX-X
-    function generatePin() {
-        function randDigits(n) {
-            let s = '';
-            for (let i = 0; i < n; i++) s += Math.floor(Math.random() * 10);
-            return s;
+        // Get pin from query string and display it
+        const params = new URLSearchParams(window.location.search);
+        const pin = params.get('pin');
+        if(pin) {
+            document.getElementById('pinDisplay').textContent = pin;
         }
-        return randDigits(2) + '-' + randDigits(9) + '-' + randDigits(1);
-    }
-    document.getElementById('pinDisplay').textContent = generatePin();
     </script>
 </body>
 </html> 
