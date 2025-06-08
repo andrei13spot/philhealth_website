@@ -8,199 +8,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-    <style>
-      body {
-        background: #f4f7fa;
-        min-height: 100vh;
-      }
-      .header-bar {
-        background: #8dc63f;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        padding: 0 30px;
-        position: relative;
-        z-index: 1001;
-      }
-      .header-bar .logo {
-        height: 65px;
-        margin-right: 20px;
-      }
-      .burger-btn {
-        background: none;
-        border: none;
-        color: #333;
-        font-size: 2rem;
-        margin-left: 10px;
-        cursor: pointer;
-        z-index: 1101;
-        display: block;
-      }
-      .sidebar {
-        position: fixed;
-        top: 0;
-        left: -280px;
-        width: 280px;
-        height: 100vh;
-        background: #23272b;
-        z-index: 200;
-        display: flex;
-        flex-direction: column;
-        transition: left 0.3s;
-      }
-      .sidebar.open {
-        left: 0;
-      }
-      .sidebar-logo-bar {
-        width: 100%;
-        background: #8dc63f;
-        text-align: center;
-        padding: 18px 0 10px 0;
-        position: relative;
-        top: 0;
-        left: 0;
-      }
-      .sidebar-logo-bar .logo {
-        height: 38px;
-      }
-      .sidebar-content {
-        padding: 20px 0 0 0;
-        flex: 1;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        height: calc(100vh - 60px);
-      }
-      .sidebar-header {
-        background: none;
-        box-shadow: none;
-        padding: 0 20px 10px 20px;
-      }
-      .sidebar-user {
-        font-weight: bold;
-        color: #bfc9d1;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-      .sidebar-id {
-        font-size: 0.98em;
-        color: #bfc9d1;
-      }
-      .nav {
-        margin-top: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-      }
-      .nav a {
-        color: #fff;
-        text-decoration: none;
-        padding: 12px 30px;
-        font-size: 1em;
-        display: flex;
-        align-items: center;
-        transition: background 0.2s;
-      }
-      .nav a.active, .nav a:hover {
-        background: #8dc63f;
-        color: #23272b;
-        font-weight: bold;
-      }
-      .nav a i {
-        margin-right: 10px;
-      }
-      .main-content {
-        margin-left: 0;
-        padding: 30px;
-        transition: margin-left 0.3s;
-      }
-      .main-content.shifted {
-        margin-left: 280px;
-      }
-      .member-card {
-        background: #fff;
-        border-radius: 6px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        border-top: 3px solid #8dc63f;
-        padding: 30px 30px 20px 30px;
-        margin-bottom: 30px;
-        max-width: 900px;
-        margin-left: auto;
-        margin-right: auto;
-      }
-      .member-card-title {
-        font-size: 1.4em;
-        font-weight: bold;
-        color: #222;
-        margin-bottom: 18px;
-        border-bottom: 1px solid #8dc63f;
-        padding-bottom: 8px;
-      }
-      .info-table th, .info-table td {
-        padding: 8px 12px;
-        border: 1px solid #f2f1f1;
-        font-size: 1em;
-      }
-      .info-table th {
-        background: #f7f7f7;
-        font-weight: bold;
-        color: #333;
-        text-align: left;
-        width: 40%;
-      }
-      .info-table td {
-        color: #222;
-      }
-      .change-password-card-title {
-        font-size: 1.2em;
-        font-weight: bold;
-        color: #222;
-        margin-bottom: 18px;
-        border-bottom: 1px solid #8dc63f;
-        padding-bottom: 8px;
-      }
-      .form-group label {
-        font-weight: 500;
-      }
-      .btn-change-password {
-        background: #8dc63f;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        padding: 8px 24px;
-        font-size: 1em;
-        margin-top: 10px;
-        transition: background 0.2s;
-      }
-      .btn-change-password:hover {
-        background: #6fa32b;
-      }
-      .overlay {
-        display: none;
-        position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0,0,0,0.2);
-        z-index: 199;
-      }
-      .overlay.show {
-        display: block;
-      }
-      @media (max-width: 900px) {
-        .sidebar { left: 0; width: 280px; }
-        .main-content { margin-left: 280px; padding: 10px; }
-      }
-      @media (max-width: 600px) {
-        .sidebar { left: 0; width: 100vw; min-width: 120px; }
-        .main-content { margin-left: 0; padding: 5px; }
-      }
-      .card {
-        background: #f7f7f7;
-        border-radius: 6px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      }
-    </style>
   </head>
   <body>
     <div class="header-bar">
@@ -213,14 +20,14 @@
       </div>
       <div class="sidebar-content">
         <div class="sidebar-header">
-          <div class="sidebar-user">[USER NAME]</div>
-          <div class="sidebar-id">[PIN]</div>
+          <div class="sidebar-user"></div>
+          <div class="sidebar-id"></div>
+          <hr style="border:1px solid #2e2c2c;margin:10px 0 0 0;" />
         </div>
-        <hr style="border:1px solid #23272b;margin:10px 0 0 0;" />
         <div class="nav">
-          <a href="dashboard.html"><i class="fa fa-user-circle-o"></i>Member Information</a>
-          <a href="user.html" class="active"><i class="fa fa-user"></i>User Profile</a>
-          <a href="logout.html"><i class="fa fa-sign-out"></i>Log Out</a>
+          <a href="dashboard.html" id="dashboardLink"><i class="fa fa-user-circle-o"></i>Member Information</a>
+          <a href="user.html" class="active" id="userProfileLink"><i class="fa fa-user"></i>User Profile</a>
+          <a href="logout.html" class="logout"><i class="fa fa-sign-out"></i>Log Out</a>
         </div>
       </div>
     </div>
@@ -228,110 +35,70 @@
     <div class="main-content shifted" id="mainContent">
       <div class="member-card">
         <!-- User Profile Section -->
-        <div class="card">
+        <div class="card" id="userProfileCard">
           <div class="member-card-title">User Profile</div>
-          <table class="info-table" style="width:100%;margin-bottom:24px;">
-            <tr><th>PhilHealth Identification Number</th><td id="userID">[PIN]</td></tr>
-            <tr><th>Email Address</th><td id="userEmail">[EMAIL]</td></tr>
-            <tr><th>Mobile Number</th><td id="userMobileNumber">[MOBILE NUMBER]</td></tr>
-          </table>
+          <div style="display: flex; justify-content: center;">
+            <table class="info-table" style="width:100%;max-width:500px;margin-bottom:24px;">
+              <tr><th>PhilHealth Identification Number</th><td id="userID">[PIN]</td></tr>
+              <tr><th>Email Address</th><td id="userEmail">[EMAIL]</td></tr>
+              <tr><th>Mobile Number</th><td id="userMobileNumber">[MOBILE NUMBER]</td></tr>
+            </table>
+          </div>
+
+          <div style="text-align:center;">
+            <button class="btn-change-password" id="showChangePassword">
+              <i class="fa fa-lock"></i> Change Password
+            </button>
+            <br>
+            <a href="delete-account.html" class="btn btn-danger" style="margin-top:24px;display:inline-block;"><i class="fa fa-trash"></i> Delete Account</a>
+            </br></div>
         </div>
         <!-- Change Password Section -->
-        <div class="card">
+        <div class="card" id="changePasswordCard" style="display:none;">
           <div class="change-password-card-title">Change Password</div>
-          <form id="changePasswordForm">
-            <div class="form-group mb-3">
-              <label for="oldPassword">Old Password</label>
-              <input type="password" class="form-control form-control-sm" id="oldPassword" placeholder="Enter old password" required>
+          <div class="requirements-box">
+            <b><i class="fa fa-info-circle"></i> Password must meet the following requirements:</b>
+            <ul style="margin-top:8px;">
+              <li>Minimum of 8 chars</li>
+              <li>Maximum of 32 chars</li>
+              <li>Must contain at least one digit (0-9)</li>
+              <li>Must contain at least one uppercase letter (A-Z)</li>
+              <li>Must contain at least one lowercase letter (a-z)</li>
+              <li>Must contain at least one special char (`~!@#$%^&*()-_=+[]{}|;:'"<>,.?/)</li>
+            </ul>
+          </div>
+          <form id="changePasswordForm" class="change-password-form">
+            <div class="change-password-form-group">
+              <label for="oldPassword">*Old Password</label>
+              <input type="password" id="oldPassword" name="oldPassword" placeholder="Old Password" required>
             </div>
-            <div class="form-group mb-3">
-              <label for="newPassword">New Password</label>
-              <input type="password" class="form-control form-control-sm" id="newPassword" placeholder="Enter new password" required>
+            <div class="change-password-form-group">
+              <label for="newPassword">*New Password</label>
+              <input type="password" id="newPassword" name="newPassword" placeholder="New Password" required>
             </div>
-            <div class="form-group mb-3">
-              <label for="confirmNewPassword">Confirm New Password</label>
-              <input type="password" class="form-control form-control-sm" id="confirmNewPassword" placeholder="Re-enter new password" required>
+            <div class="change-password-form-group">
+              <label for="confirmNewPassword">*Confirm New Password</label>
+              <input type="password" id="confirmNewPassword" name="confirmNewPassword" placeholder="Confirm New Password" required>
             </div>
-            <button type="submit" class="btn btn-change-password">Change Password</button>
+            <div class="text-center">
+              <button type="submit" class="btn btn-submit-change-password"><i class="fa fa-check"></i> Submit</button>
+              <button type="button" class="btn btn-cancel" id="cancelChangePassword"><i class="fa fa-times"></i> Cancel</button>
+            </div>
           </form>
         </div>
       </div>
     </div>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <script src="shared.js"></script>
+    <script src="user.js"></script>
     <script>
-      // Sidebar functionality
-      const burgerBtn = document.getElementById('burgerBtn');
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebarOverlay');
-      const mainContent = document.querySelector('.main-content');
-
-      function openSidebar() {
-        sidebar.classList.add('open');
-        overlay.classList.add('show');
-        mainContent.classList.add('shifted');
-      }
-
-      function closeSidebar() {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('show');
-        mainContent.classList.remove('shifted');
-      }
-
-      burgerBtn.addEventListener('click', function() {
-        if (sidebar.classList.contains('open')) {
-          closeSidebar();
-        } else {
-          openSidebar();
-        }
-      });
-
-      overlay.addEventListener('click', closeSidebar);
-
-      // Load user profile data
-      async function loadUserProfile() {
-        const data = await fetchUserProfile();
-        if (data) {
-          document.getElementById('userID').textContent = data.pin;
-          document.getElementById('userEmail').textContent = data.email;
-          document.getElementById('userMobileNumber').textContent = data.mobileNumber;
-          
-          // Update sidebar
-          document.querySelector('.sidebar-user').textContent = data.pin;
-          document.querySelector('.sidebar-id').textContent = data.pin;
-        }
-      }
-
-      // Handle password change
-      document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const oldPassword = document.getElementById('oldPassword').value;
-        const newPassword = document.getElementById('newPassword').value;
-        const confirmPassword = document.getElementById('confirmNewPassword').value;
-
-        if (newPassword !== confirmPassword) {
-          alert('New passwords do not match');
-          return;
-        }
-
-        try {
-          const result = await changePassword(oldPassword, newPassword);
-          if (result.success) {
-            alert('Password changed successfully');
-            document.getElementById('changePasswordForm').reset();
-          } else {
-            alert(result.error || 'Failed to change password');
-          }
-        } catch (error) {
-          alert(error.message || 'An error occurred while changing password');
-        }
-      });
-
-      // Initialize page
-      document.addEventListener('DOMContentLoaded', function() {
-        loadUserProfile();
-      });
+    document.getElementById('showChangePassword').onclick = function() {
+      document.getElementById('userProfileCard').style.display = 'none';
+      document.getElementById('changePasswordCard').style.display = 'block';
+    };
+    document.getElementById('cancelChangePassword').onclick = function() {
+      document.getElementById('changePasswordCard').style.display = 'none';
+      document.getElementById('userProfileCard').style.display = 'block';
+    };
     </script>
   </body>
 </html>

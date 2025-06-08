@@ -362,10 +362,10 @@
                                         <tr>
                                             <th style="border:1px solid #bfc9d1;padding:6px 8px;">Relationship</th>
                                             <th style="border:1px solid #bfc9d1;padding:6px 8px;">Full Name</th>
-                                            <th style="border:1px solid #bfc9d1;padding:6px 8px;">Date of Birth</th>
                                             <th style="border:1px solid #bfc9d1;padding:6px 8px;">Sex</th>
+                                            <th style="border:1px solid #bfc9d1;padding:6px 8px;">Date of Birth</th>
                                             <th style="border:1px solid #bfc9d1;padding:6px 8px;">Citizenship</th>
-                                            <th style="border:1px solid #bfc9d1;padding:6px 8px;">Disability</th>
+                                            <th style="border:1px solid #bfc9d1;padding:6px 8px;">PWD</th>
                                         </tr>
                                     </thead>
                                     <tbody id="dependentsTableBody">
@@ -428,11 +428,6 @@
                 box.classList.remove('checked');
             }
         });
-    });
-    // No income logic (example of field-specific UI logic)
-    document.getElementById('noIncome').addEventListener('change', function() {
-        document.getElementById('monthlyIncome').disabled = this.checked;
-        if (this.checked) document.getElementById('monthlyIncome').value = '';
     });
     </script>
 </body>

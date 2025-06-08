@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Delete Account - PhilHealth</title>
+  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    .delete-account-center {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f4f7fa;
+    }
+    .delete-account-card {
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border-top: 3px solid #e53935;
+      padding: 36px 30px 30px 30px;
+    }
+    .delete-account-card h2 {
+      color: #e53935;
+      margin-bottom: 18px;
+    }
+    .delete-account-card p {
+      font-size: 1.1em;
+      margin-bottom: 24px;
+    }
+    .delete-account-card .btn-danger {
+      margin-right: 18px;
+      min-width: 180px;
+    }
+    .delete-account-card .btn-cancel {
+      min-width: 120px;
+    }
+    @media (max-width: 600px) {
+      .delete-account-card {
+        padding: 18px 8px 18px 8px;
+      }
+      .delete-account-card .btn-danger, .delete-account-card .btn-cancel {
+        min-width: 100px;
+        margin: 8px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="delete-account-center">
+    <div class="delete-account-card">
+      <h2>Delete Account</h2>
+      <p>Are you sure you want to delete your account? <br><b>This action cannot be undone.</b> All your information will be permanently removed from our system.</p>
+      <button id="confirmDeleteBtn" class="btn btn-danger"><i class="fa fa-trash"></i> Yes, Delete My Account</button>
+      <a href="user.html" class="btn btn-cancel">Cancel</a>
+    </div>
+  </div>
+  <script>
+    document.getElementById('confirmDeleteBtn').onclick = function() {
+      if (!confirm('Are you absolutely sure? This action cannot be undone.')) return;
+      const pin = localStorage.getItem('memberPin');
+      fetch('http://localhost:3000/api/delete-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert('Account deleted successfully.');
+          localStorage.clear();
+          sessionStorage.clear();
+          window.location.href = 'index.html';
+        } else {
+          alert(data.error || 'Failed to delete account.');
+        }
+      })
+      .catch(() => {
+        alert('An error occurred while deleting the account.');
+      });
+    };
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</body>
+</html> 

@@ -1,3 +1,6 @@
+// =============================================
+// SERVER CONFIGURATION AND SETUP
+// =============================================
 const express = require('express');
 const mysql = require('mysql2');
 const bcrypt = require('bcryptjs');
@@ -5,7 +8,9 @@ const cors = require('cors');
 const path = require('path');
 const app = express();
 
-// Middleware
+// =============================================
+// MIDDLEWARE CONFIGURATION
+// =============================================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
@@ -15,21 +20,25 @@ app.use(cors({
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Database configuration with timeout
+// =============================================
+// DATABASE CONFIGURATION
+// =============================================
 const db = mysql.createConnection({
     host: '127.0.0.1',
     user: 'root',
     password: 'password',
     database: 'philhealth_db',
     port: 3306,
-    connectTimeout: 10000, // 10 seconds timeout
+    connectTimeout: 10000,
     acquireTimeout: 10000,
     timeout: 10000,
     enableKeepAlive: true,
     keepAliveInitialDelay: 0
 });
 
-// Database connection with retry logic and timeout
+// =============================================
+// DATABASE CONNECTION MANAGEMENT
+// =============================================
 function connectWithRetry(attempts = 0) {
     const maxAttempts = 3;
     
@@ -65,7 +74,46 @@ db.on('error', (err) => {
     }
 });
 
-// Health check endpoint
+// =============================================
+// HELPER FUNCTIONS
+// =============================================
+function generatePin(callback) {
+    function randDigits(n) {
+        let s = '';
+        for (let i = 0; i < n; i++) s += Math.floor(Math.random() * 10);
+        return s;
+    }
+    const tryPin = () => {
+        const pin = randDigits(2) + '-' + randDigits(9) + '-' + randDigits(1);
+        db.query('SELECT pin FROM member WHERE pin = ?', [pin], (err, results) => {
+            if (err) return callback(err);
+            if (results.length > 0) {
+                return tryPin();
+            }
+            callback(null, pin);
+        });
+    };
+    tryPin();
+}
+
+// Format date to MM/DD/YYYY
+function formatDate(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString; // Return original if invalid date
+    
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${month}/${day}/${year}`;
+}
+
+// =============================================
+// API ENDPOINTS
+// =============================================
+
+// Health Check Endpoint
 app.get('/health', (req, res) => {
     db.query('SELECT 1', (err) => {
         if (err) {
@@ -84,28 +132,7 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Helper function to generate a unique PhilHealth PIN
-function generatePin(callback) {
-    function randDigits(n) {
-        let s = '';
-        for (let i = 0; i < n; i++) s += Math.floor(Math.random() * 10);
-        return s;
-    }
-    const tryPin = () => {
-        const pin = randDigits(2) + '-' + randDigits(9) + '-' + randDigits(1);
-        db.query('SELECT pin FROM member WHERE pin = ?', [pin], (err, results) => {
-            if (err) return callback(err);
-            if (results.length > 0) {
-                // PIN already exists, try again
-                return tryPin();
-            }
-            callback(null, pin);
-        });
-    };
-    tryPin();
-}
-
-// Registration endpoint
+// Registration Endpoint
 app.post('/register', (req, res) => {
     console.log('Registration request received:', JSON.stringify(req.body, null, 2));
     const { member, dependents } = req.body;
@@ -176,7 +203,7 @@ app.post('/register', (req, res) => {
     });
 });
 
-// Endpoint to check if PIN exists in member table
+// PIN Check Endpoint
 app.get('/api/check-pin', (req, res) => {
     const pin = req.query.pin;
     if (!pin) return res.status(400).json({ exists: false, error: 'No PIN provided' });
@@ -186,7 +213,7 @@ app.get('/api/check-pin', (req, res) => {
     });
 });
 
-// Endpoint to check if account exists for a PIN
+// Account Check Endpoint
 app.get('/api/check-account', (req, res) => {
     const pin = req.query.pin;
     if (!pin) return res.status(400).json({ exists: false, error: 'No PIN provided' });
@@ -196,7 +223,7 @@ app.get('/api/check-account', (req, res) => {
     });
 });
 
-// Update create-account endpoint
+// Create Account Endpoint
 app.post('/create-account', async (req, res) => {
     try {
         const { pin, email, password } = req.body;
@@ -227,7 +254,7 @@ app.post('/create-account', async (req, res) => {
     }
 });
 
-// Login endpoint
+// Login Endpoint
 app.post('/login', (req, res) => {
     console.log('Login request received');
     console.log('Request body:', req.body);
@@ -305,13 +332,17 @@ app.get('/api/member-info', async (req, res) => {
             [pin]
         );
 
+        if (dependentRows.length === 0) {
+            return res.status(404).json({ error: 'Dependent not found' });
+        }       
+
         // Format the response
         const response = {
             member: {
                 pin: member.pin,
                 fullName: member.member_full_name || '',
                 sex: member.sex || '',
-                dateOfBirth: member.date_of_birth || '',
+                dateOfBirth: formatDate(member.date_of_birth) || '',
                 citizenship: member.citizenship || '',
                 civilStatus: member.civil_status || '',
                 philsysId: member.philsys_id || '',
@@ -327,8 +358,7 @@ app.get('/api/member-info', async (req, res) => {
             },
             dependents: dependentRows.map(dep => ({
                 fullName: dep.dependent_full_name || '',
-                sex: dep.dependent_sex || '',
-                dateOfBirth: dep.dependent_date_of_birth || '',
+                dateOfBirth: formatDate(dep.dependent_date_of_birth) || '',
                 relationship: dep.dependent_relationship || '',
                 citizenship: dep.dependent_citizenship || '',
                 pwd: dep.dependent_pwd || ''
@@ -416,6 +446,23 @@ app.post('/api/change-password', async (req, res) => {
     }
 });
 
+// Delete account endpoint
+app.post('/api/delete-account', async (req, res) => {
+    const { pin } = req.body;
+    if (!pin) return res.status(400).json({ success: false, error: 'PIN is required' });
+    try {
+        // Delete from dependents first (foreign key constraint)
+        await db.promise().query('DELETE FROM dependent WHERE pin = ?', [pin]);
+        // Delete from account
+        await db.promise().query('DELETE FROM account WHERE pin = ?', [pin]);
+        // Delete from member
+        await db.promise().query('DELETE FROM member WHERE pin = ?', [pin]);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // Add a test endpoint to verify server is working
 app.get('/test', (req, res) => {
     res.json({ message: 'Server is running' });
@@ -427,31 +474,29 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Internal server error' });
 });
 
-// Start server
+// =============================================
+// SERVER STARTUP AND SHUTDOWN
+// =============================================
 const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Health check available at http://localhost:${PORT}/health`);
 });
 
-// Handle server shutdown gracefully
 function gracefulShutdown(signal) {
-    console.log(`\n${signal} signal received: closing HTTP server`);
+    console.log(`\n${signal} received. Starting graceful shutdown...`);
     server.close(() => {
         console.log('HTTP server closed');
         db.end((err) => {
             if (err) {
                 console.error('Error closing database connection:', err);
             } else {
-                console.log('Database connection closed');
+                console.log('Database connection closed.');
             }
             process.exit(0);
         });
     });
 }
 
-// Handle SIGTERM (kill command)
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-
-// Handle SIGINT (Ctrl+C)
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));

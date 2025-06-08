@@ -1,3 +1,11 @@
+#sidebarOverlay {
+    display: none;!important
+  }
+  #sidebarOverlay.show {
+    display: block;!important
+  }
+  
+
 /* Reset and base styles */
 * {
     margin: 0;
@@ -9,6 +17,12 @@
 body {
     background: #f4f7fa;
     min-height: 100vh;
+    overflow: hidden;
+    
+}
+
+html {
+    height: 100%;
 }
 
 .header-bar {
@@ -54,6 +68,9 @@ body {
     left: 0;
 }
 
+.sidebar-logo-bar .logo {
+    height: 38px;
+}
 .sidebar-logo-bar {
     width: 100%;
     background: #8dc63f;
@@ -114,14 +131,28 @@ body {
     font-weight: bold;
 }
 
+.nav a.logout {
+    color: #dc3545;
+}
+
+.nav a.logout:hover, .nav a.logout.active {
+    background: #36373d;
+    color: #dc3545;
+    font-weight: bold;
+}
+
 .nav a i {
     margin-right: 10px;
 }
 
 .main-content {
     margin-left: 0;
-    padding: 30px;
+    padding: 10px;
     transition: margin-left 0.3s;
+    height: calc(100vh - 60px); /* Subtract header height */
+    overflow-y: auto;
+    position: relative;
+    top: 60px; /* Match header height */
 }
 
 .main-content.shifted {
@@ -140,13 +171,16 @@ body {
     margin-right: auto;
 }
 
-.member-card-title {
-    font-size: 1.4em;
+.member-card-title, .change-password-card-title {
+    font-size: 2em;
     font-weight: bold;
     color: #222;
     margin-bottom: 18px;
-    border-bottom: 1px solid #8dc63f;
+    margin-left: 20px;
+    margin-top: 20px;
+    border-bottom: 2px solid #8dc63f;
     padding-bottom: 8px;
+    text-align: left;
 }
 
 .print-btn {
@@ -189,6 +223,127 @@ body {
     color: #222;
 }
 
+.text-center {
+    text-align: center;
+    color: #ce1f1f;
+}
+
+.btn-change-password {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    transition: background 0.2s;
+    background: #8dc63f;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 32px;
+    font-size: 1.1em;
+    font-weight: 500;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-change-password:hover {
+    background: #6fa32b;
+}
+.btn-submit-change-password {
+    background: #8dc63f !important;
+    color: #fff !important;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 1.1em;
+    font-weight: 500;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-submit-change-password:hover {
+    background: #6fa32b !important;
+}
+
+.btn-cancel {
+    background: #e53935 !important;
+    color: #fff !important;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 32px;
+    font-size: 1.1em;
+    font-weight: 500;
+    margin-top: 10px;
+    margin-left: 40px;
+    margin-bottom: 10px;
+    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-cancel:hover {
+    background: #b71c1c !important;
+}
+
+.btn-danger {
+    background: #e53935 !important;
+    color: #fff !important;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 32px;
+    font-size: 1.1em;
+    font-weight: 500;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+.btn-danger:hover {
+    background: #b71c1c !important;
+}
+
+.requirements-box {
+    background: #e3f2fd !important;
+    border: 1px solid #b6d4fe !important;
+    border-radius: 6px !important;
+    padding: 18px 24px 14px 24px !important;
+    margin-bottom: 32px !important;
+    margin-top: 24px !important;
+    color: #222 !important;
+    width: 80% !important;
+    box-sizing: border-box !important;
+    max-width: 800px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    font-size: 1em !important;
+    line-height: 1.6 !important;
+    position: relative;
+    z-index: 1000;  
+}
+
+.requirements-box ul {
+    margin-bottom: 0;
+    margin-top: 8px;
+    margin-left: 20px;
+}
+
+.requirements-box b {
+    color: #1976d2;
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+
+
+.requirements-box .fa-info-circle {
+    margin-right: 6px;
+    font-size: 1.2em;
+}
+
 .accordion .card {
     border: none;
     border-radius: 0;
@@ -226,8 +381,60 @@ body {
     transition: transform 0.3s;
 }
 
-.chevron.rotate {
+.accordion-section.active .chevron {
     transform: rotate(90deg);
+}
+
+/* Style for password change form fields */
+.change-password-form {
+    width: 50% !important;
+    margin: 0 auto 0 auto !important;
+    padding: 0 !important; 
+}
+
+
+
+.change-password-form label {
+    font-weight: bold !important;
+    margin-bottom: 6px !important;
+    letter-spacing: 0.2px;
+}
+
+.change-password-form input[type="password"],
+.change-password-form input[type="text"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding: 12px 14px !important;
+    border: 1.5px solid #bfc9d1 !important;
+    border-radius: 5px !important;
+    font-size: 1.08em !important;
+    margin-bottom: 2px !important;
+    margin-top: 2px !important;
+    box-sizing: border-box !important;
+    background: #f9f9f9 !important;
+    transition: border 0.2s !important;
+}
+
+.change-password-form input[type="password"]:focus,
+.change-password-form input[type="text"]:focus {
+    border: 1.5px solid #8dc63f !important;
+    outline: none !important;
+    background: #fff !important;
+}
+
+/* Optional: Add subtle shadow and spacing for better appearance */
+.change-password-form input[type="password"],
+.change-password-form input[type="text"] {
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03) !important;
+}
+
+/* Responsive: Full width on small screens */
+@media (max-width: 600px) {
+    .change-password-form-group {
+        width: 100%;
+        max-width: 100%;
+    }
 }
 
 @media (max-width: 900px) {
@@ -241,15 +448,50 @@ body {
 }
 
 @media print {
-    body * {
-        visibility: hidden;
+    body {
+        background: white;
     }
-    .member-card, .member-card * {
-        visibility: visible;
+    
+    .header-bar, .sidebar, .burger-btn, .overlay {
+        display: none;
     }
+    
+    .main-content {
+        margin: 0;
+        padding: 20px;
+        width: 100%;
+    }
+    
     .member-card {
-        position: absolute;
-        left: 0;
-        top: 0;
+        box-shadow: none;
+        border: 1px solid #ddd;
+        margin: 0;
+        padding: 20px;
     }
-} 
+    
+    .btn-change-password, .btn-cancel {
+        display: none;
+    }
+    
+
+    
+    /* Ensure tables are properly visible */
+    .info-table th, .info-table td {
+        border: 1px solid #000;
+    }
+    
+    /* Ensure proper page breaks */
+    .member-card {
+        page-break-inside: avoid;
+    }
+}
+
+/* or inside <style> in user.html */
+#sidebarOverlay {
+  display: none;
+  pointer-events: none;
+}
+#sidebarOverlay.show {
+  display: block;
+  pointer-events: auto;
+}

@@ -64,13 +64,65 @@ document.querySelector('.print-btn').addEventListener('click', function() {
 // DATA MANAGEMENT
 // =============================================
 
-// Helper to get current member info from localStorage
+// Load member info and dependents from localStorage
+function loadMemberData() {
+    const pin = localStorage.getItem('memberPin');
+    const member = JSON.parse(localStorage.getItem('memberInfo') || 'null');
+    const dependents = JSON.parse(localStorage.getItem('memberDependents') || '[]');
+    return { pin, member, dependents };
+}
+
+function saveMemberData(pin, member, dependents) {
+    localStorage.setItem('memberPin', pin);
+    localStorage.setItem('memberInfo', JSON.stringify(member));
+    localStorage.setItem('memberDependents', JSON.stringify(dependents || []));
+}
+
+// Fetch and display member information
+async function fetchMemberInfo(forceRefresh = false) {
+    const pin = localStorage.getItem('memberPin');
+
+    if (!pin) {
+        console.error('❌ No PIN provided');
+        return;
+    }
+
+    // Always clear storage before fetching new data (for new login)
+    localStorage.removeItem('memberInfo');
+    localStorage.removeItem('memberDependents');
+
+    // Fetch fresh data from server
+    try {
+        const response = await fetch(`http://localhost:3000/api/member-info?pin=${encodeURIComponent(pin)}`);
+        const data = await response.json();
+
+        console.log("✅ Server response:", data); // Check the shape
+
+        if (response.ok && data.member) {
+            const member = data.member;
+            const dependents = data.dependents || [];
+
+            saveMemberData(pin, member, dependents);
+            displayMemberInfo(member, dependents);
+        } else {
+            console.error('❌ Error fetching member information:', data.error);
+        }
+    } catch (error) {
+        console.error('❌ Fetch error:', error);
+    }
+}
+
+// Helper to get member and dependents from localStorage
 function getCurrentMember() {
     return JSON.parse(localStorage.getItem('memberInfo') || 'null');
 }
 function getCurrentDependents() {
     return JSON.parse(localStorage.getItem('memberDependents') || '[]');
 }
+
+// =============================================
+// UI DISPLAY
+// =============================================
 
 function updateSidebar() {
     const member = getCurrentMember();
@@ -80,46 +132,9 @@ function updateSidebar() {
     if (sidebarId) sidebarId.textContent = member?.pin || '';
 }
 
-// Fetch and display member information
-async function fetchMemberInfo(forceRefresh = false) {
-    try {
-        const params = new URLSearchParams(window.location.search);
-        let pin = params.get('pin') || localStorage.getItem('memberPin');
-
-        if (!pin) {
-            console.error('No PIN provided');
-            return;
-        }
-
-        // Always refresh if the PIN in localStorage is different from the current PIN
-        const cachedPin = localStorage.getItem('memberPin');
-        if (!forceRefresh && localStorage.getItem('memberInfo') && cachedPin === pin) {
-            updateSidebar();
-            displayMemberInfo(getCurrentMember(), getCurrentDependents());
-            return;
-        }
-
-        // Otherwise, fetch from server
-        const response = await fetch(`http://localhost:3000/api/member-info?pin=${encodeURIComponent(pin)}`);
-        const data = await response.json();
-
-        if (response.ok) {
-            const { member, dependents } = data;
-            localStorage.setItem('memberInfo', JSON.stringify(member));
-            localStorage.setItem('memberDependents', JSON.stringify(dependents || []));
-            updateSidebar();
-            displayMemberInfo(member, dependents);
-        } else {
-            console.error('Error fetching member information:', data.error);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
 function displayMemberInfo(member, dependents) {
     updateSidebar();
-    // Update member information section
+
     const memberInfoTable = document.querySelectorAll('.accordion-content .info-table')[0];
     memberInfoTable.innerHTML = `
         <tr><th>PIN</th><td>${member.pin}</td></tr>
@@ -134,7 +149,6 @@ function displayMemberInfo(member, dependents) {
         <tr><th>Spouse Full Name</th><td>${member.spouseFullName}</td></tr>
     `;
 
-    // Update contact details section
     const contactTable = document.querySelectorAll('.accordion-content .info-table')[1];
     contactTable.innerHTML = `
         <tr><th>Home Number</th><td>${member.homeNumber}</td></tr>
@@ -145,18 +159,16 @@ function displayMemberInfo(member, dependents) {
         <tr><th>Mailing Address</th><td>${member.mailingAddress}</td></tr>
     `;
 
-    // Use the dependents argument directly for display
-    const dependentsTableWrapper = document.querySelectorAll('.accordion-content .info-table')[2];
-    const dependentsTable = dependentsTableWrapper ? dependentsTableWrapper.querySelector('tbody') : null;
+    const dependentsTable = document.querySelectorAll('.accordion-content .info-table')[2]?.querySelector('tbody');
     if (dependentsTable) {
-        if (dependents && dependents.length > 0) {
+        if (Array.isArray(dependents) && dependents.length > 0) {
             dependentsTable.innerHTML = dependents.map(dep => `
                 <tr>
-                    <td>${dep.relationship}</td>
-                    <td>${dep.fullName}</td>
-                    <td>${dep.dateOfBirth}</td>
-                    <td>${dep.citizenship}</td>
-                    <td>${dep.pwd}</td>
+                    <td>${dep.relationship || ''}</td>
+                    <td>${dep.fullName || ''}</td>
+                    <td>${dep.dateOfBirth || ''}</td>
+                    <td>${dep.citizenship || ''}</td>
+                    <td>${dep.pwd || ''}</td>
                 </tr>
             `).join('');
         } else {
@@ -183,13 +195,3 @@ document.querySelectorAll('.nav a, .profile-link').forEach(link => {
         fetchMemberInfo();
     });
 });
-
-// Logout handler: clear localStorage and redirect to login
-const logoutBtn = document.querySelector('.logout');
-if (logoutBtn) {
-    logoutBtn.addEventListener('click', function() {
-        localStorage.clear(); // Clear all localStorage data
-        sessionStorage.clear(); // Also clear sessionStorage for safety
-        window.location.href = 'index.html';
-    });
-}

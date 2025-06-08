@@ -24,18 +24,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initial CAPTCHA display
     displayCaptcha();
+    
+    // Add CAPTCHA input handling
+    const captchaInput = document.getElementById('captcha');
+    if (captchaInput) {
+        captchaInput.addEventListener('input', function(e) {
+            // Convert to uppercase and remove any non-alphanumeric characters
+            let value = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+            // Limit to 6 characters
+            e.target.value = value.slice(0, 6);
+        });
+    }
 
     // Refresh CAPTCHA
     refreshCaptchaBtn.addEventListener('click', displayCaptcha);
 
     // Password validation
     function validatePassword(password) {
+        const errors = [];
         const minLength = 8;
-        const hasUpperCase = /[A-Z]/.test(password);
-        const hasLowerCase = /[a-z]/.test(password);
-        const hasNumber = /[0-9]/.test(password);
-        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>~`\-_=+\[\]{}\\|;:'",<.>\/]/.test(password);
-        return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar;
+        const maxLength = 32;
+        if (password.length < minLength) {
+            errors.push(`Password must be at least ${minLength} characters long`);
+        }
+        if (password.length > maxLength) {
+            errors.push(`Password must not exceed ${maxLength} characters`);
+        }
+        if (!/[A-Z]/.test(password)) {
+            errors.push('Password must contain at least one uppercase letter');
+        }
+        if (!/[a-z]/.test(password)) {
+            errors.push('Password must contain at least one lowercase letter');
+        }
+        if (!/[0-9]/.test(password)) {
+            errors.push('Password must contain at least one number');
+        }
+        if (!/[!@#$%^&*(),.?":{}|<>~`\-_=+\[\]{}\\|;:'",<.>\/]/.test(password)) {
+            errors.push('Password must contain at least one special character');
+        }
+        return errors;
     }
 
     // Add numeric-only and maxlength formatting for number fields (to match form-format.js)
@@ -58,8 +85,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const captchaInput = document.getElementById('captcha').value;
 
         // Validate password
-        if (!validatePassword(password)) {
-            alert('Password does not meet the requirements. Please check the password requirements.');
+        const passwordErrors = validatePassword(password);
+        if (passwordErrors.length > 0) {
+            alert(passwordErrors.join('\n'));
             return;
         }
 
@@ -137,8 +165,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Real-time password validation
     passwordInput.addEventListener('input', function() {
         const password = this.value;
-        const isValid = validatePassword(password);
-        this.style.borderColor = isValid ? '#28a745' : '#dc3545';
+        const errors = validatePassword(password);
+        this.style.borderColor = errors.length === 0 ? '#28a745' : '#dc3545';
     });
 
     // Real-time password confirmation
@@ -148,39 +176,30 @@ document.addEventListener('DOMContentLoaded', function() {
         this.style.borderColor = password === confirmPassword ? '#28a745' : '#dc3545';
     });
 
-    // Auto-format PhilHealth Identification Number input
-    const philhealthInput = document.getElementById('philhealthId');
-    if (philhealthInput) {
-        // Prevent non-numeric input on keypress
-        philhealthInput.addEventListener('keypress', function(e) {
-            if (!/[\d]/.test(e.key)) {
-                e.preventDefault();
-            }
-        });
-
-        // Prevent non-numeric input on paste
-        philhealthInput.addEventListener('paste', function(e) {
+  // Auto-format PhilHealth Identification Number input
+const philhealthInput = document.getElementById('philhealthId');
+if (philhealthInput) {
+    // Prevent non-numeric input
+    philhealthInput.addEventListener('keypress', function(e) {
+        if (!/[\d]/.test(e.key)) {
             e.preventDefault();
-            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
-            const numericOnly = pastedText.replace(/[^0-9]/g, '');
-            if (numericOnly) {
-                const start = this.selectionStart;
-                const end = this.selectionEnd;
-                const value = this.value;
-                this.value = value.substring(0, start) + numericOnly + value.substring(end);
-            }
-        });
+        }
+    });
 
-        philhealthInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/[^0-9]/g, '');
-            if (value.length > 0) {
-                value = value.slice(0,2) + '-' + value.slice(2);
-            }
-            if (value.length > 12) {
-                value = value.slice(0,12) + '-' + value.slice(12,13);
-            }
-            e.target.value = value.slice(0,14);
-        });
+    philhealthInput.addEventListener('input', function(e) {
+        // Remove non-numeric characters
+        let value = e.target.value.replace(/[^0-9]/g, '');
+
+        // Format: 2 digits - 9 digits - 1 digit
+        if (value.length > 2) {
+            value = value.slice(0,2) + '-' + value.slice(2);
+        }
+        if (value.length > 12) {
+            value = value.slice(0,12) + '-' + value.slice(12,13);
+        }
+        e.target.value = value.slice(0,14); // 2+1+9+1+1+1 = 14 chars with hyphens
+    });
+} 
 
         // Validate format on blur and check if PIN exists in the database
         philhealthInput.addEventListener('blur', function() {
@@ -205,4 +224,4 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
         });
     }
-});
+); 
