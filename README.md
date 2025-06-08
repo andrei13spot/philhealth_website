@@ -3,7 +3,11 @@
 This project is a full-stack web application for managing PhilHealth member accounts, dependents, and login functionality. It features a MySQL database, a Node.js/Express backend, and a modern HTML/CSS/JS frontend. The system is designed to be robust, user-friendly, and secure, with real-time input validation and comprehensive CRUD operations.
 
 ## Features
-
+- **Member Information Display**: View detailed member information including personal details and contact information.
+- **Dependents Management**: Display and manage dependents associated with the member.
+- **User Profile Management**: Update and manage user profile information.
+- **Password Change**: Change account password with validation for security.
+- **Account Deletion**: Option to delete the account with confirmation.
 - **Member Registration**: Register new PhilHealth members with detailed information and dependents.
 - **Account Creation**: Secure account creation with password hashing and validation.
 - **Login System**: Login with email and password, with backend authentication.
@@ -12,8 +16,20 @@ This project is a full-stack web application for managing PhilHealth member acco
 - **Health Check**: `/health` endpoint to monitor server and database status.
 - **Modern UI**: Responsive, user-friendly HTML/CSS frontend.
 
-## Technologies Used
+## Setup
+1. **Clone the Repository**: Clone the repository to your local machine.
+2. **Install Dependencies**: Navigate to the project directory and run `npm install` to install the necessary dependencies.
+3. **Database Configuration**: Ensure your MySQL database is set up and update the database configuration in `server.js` if necessary.
+4. **Start the Server**: Run `node server.js` to start the server. The application will be available at `http://localhost:3000`.
 
+## Usage
+- **Login**: Use your PIN and password to log in to the dashboard.
+- **View Member Information**: Navigate to the dashboard to view your member information.
+- **Manage Dependents**: View and manage your dependents from the dashboard.
+- **Change Password**: Use the user profile page to change your password.
+- **Delete Account**: Use the delete account feature to remove your account from the system.
+
+## Technologies Used
 - **Frontend**: HTML, CSS, JavaScript
 - **Backend**: Node.js, Express.js
 - **Database**: MySQL
