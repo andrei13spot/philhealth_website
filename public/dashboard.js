@@ -1,14 +1,11 @@
 // =============================================
 // SIDEBAR MANAGEMENT
 // =============================================
-
-// Sidebar elements
 const burgerBtn = document.getElementById('burgerBtn');
 const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('sidebarOverlay');
 const mainContent = document.querySelector('.main-content');
 
-// Sidebar open/close functions
 function openSidebar() {
     sidebar.classList.add('open');
     overlay.classList.add('show');
@@ -21,18 +18,12 @@ function closeSidebar() {
     mainContent.classList.remove('shifted');
 }
 
-// Sidebar event listeners
-burgerBtn.addEventListener('click', function() {
-    if (sidebar.classList.contains('open')) {
-        closeSidebar();
-    } else {
-        openSidebar();
-    }
+burgerBtn?.addEventListener('click', () => {
+    sidebar?.classList.contains('open') ? closeSidebar() : openSidebar();
 });
 
-overlay.addEventListener('click', closeSidebar);
+overlay?.addEventListener('click', closeSidebar);
 
-// Close sidebar on navigation
 document.querySelectorAll('.nav a').forEach(link => {
     link.addEventListener('click', closeSidebar);
 });
@@ -40,158 +31,139 @@ document.querySelectorAll('.nav a').forEach(link => {
 // =============================================
 // UI INTERACTIONS
 // =============================================
-
-// Toggle chevron rotation
 document.querySelectorAll('.btn-link').forEach(button => {
-    // Set initial state for the member info section
     if (button.getAttribute('data-target') === '#collapseMemberInfo') {
-        const chevron = button.querySelector('.chevron');
-        chevron.classList.add('rotate');
+        button.querySelector('.chevron')?.classList.add('rotate');
     }
-
-    button.addEventListener('click', function() {
-        const chevron = this.querySelector('.chevron');
-        chevron.classList.toggle('rotate');
+    button.addEventListener('click', function () {
+        this.querySelector('.chevron')?.classList.toggle('rotate');
     });
 });
 
-// Print functionality
-document.querySelector('.print-btn').addEventListener('click', function() {
+document.querySelector('.print-btn')?.addEventListener('click', () => {
     window.print();
 });
 
 // =============================================
 // DATA MANAGEMENT
 // =============================================
-
-// Load member info and dependents from localStorage
-function loadMemberData() {
-    const pin = localStorage.getItem('memberPin');
-    const member = JSON.parse(localStorage.getItem('memberInfo') || 'null');
-    const dependents = JSON.parse(localStorage.getItem('memberDependents') || '[]');
-    return { pin, member, dependents };
-}
-
-function saveMemberData(pin, member, dependents) {
-    localStorage.setItem('memberPin', pin);
-    localStorage.setItem('memberInfo', JSON.stringify(member));
-    localStorage.setItem('memberDependents', JSON.stringify(dependents || []));
-}
-
-// Fetch and display member information
-async function fetchMemberInfo(forceRefresh = false) {
+function fetchMemberInfo() {
     const pin = localStorage.getItem('memberPin');
 
     if (!pin) {
-        console.error('❌ No PIN provided');
+        console.error("No PIN found. User might not be logged in.");
         return;
     }
 
-    // Always clear storage before fetching new data (for new login)
-    localStorage.removeItem('memberInfo');
-    localStorage.removeItem('memberDependents');
+    const url = `http://localhost:3000/api/member-info?pin=${encodeURIComponent(pin)}`;
+    console.log("Fetching member info from:", url);
 
-    // Fetch fresh data from server
-    try {
-        const response = await fetch(`http://localhost:3000/api/member-info?pin=${encodeURIComponent(pin)}`);
-        const data = await response.json();
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data || !data.member) {
+                console.error('Invalid response format or missing member data.');
+                return;
+            }
 
-        console.log("✅ Server response:", data); // Check the shape
-
-        if (response.ok && data.member) {
             const member = data.member;
-            const dependents = data.dependents || [];
+            const dependents = data.dependents || []; // fallback to empty array
 
-            saveMemberData(pin, member, dependents);
+            // Store in localStorage for other pages to use
+            localStorage.setItem('memberInfo', JSON.stringify(member));
+            localStorage.setItem('memberDependents', JSON.stringify(dependents));
+
             displayMemberInfo(member, dependents);
-        } else {
-            console.error('❌ Error fetching member information:', data.error);
-        }
-    } catch (error) {
-        console.error('❌ Fetch error:', error);
-    }
-}
-
-// Helper to get member and dependents from localStorage
-function getCurrentMember() {
-    return JSON.parse(localStorage.getItem('memberInfo') || 'null');
-}
-function getCurrentDependents() {
-    return JSON.parse(localStorage.getItem('memberDependents') || '[]');
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
 }
 
 // =============================================
 // UI DISPLAY
 // =============================================
-
-function updateSidebar() {
-    const member = getCurrentMember();
-    const sidebarUser = document.querySelector('.sidebar-user');
-    const sidebarId = document.querySelector('.sidebar-id');
-    if (sidebarUser) sidebarUser.textContent = member?.fullName || '';
-    if (sidebarId) sidebarId.textContent = member?.pin || '';
+function updateSidebar(member) {
+    document.querySelector('.sidebar-user').textContent = member?.fullName || 'Unknown User';
+    document.querySelector('.sidebar-id').textContent = member?.pin || '---';
 }
 
 function displayMemberInfo(member, dependents) {
-    updateSidebar();
+    updateSidebar(member);
 
-    const memberInfoTable = document.querySelectorAll('.accordion-content .info-table')[0];
-    memberInfoTable.innerHTML = `
-        <tr><th>PIN</th><td>${member.pin}</td></tr>
-        <tr><th>Full Name</th><td>${member.fullName}</td></tr>
-        <tr><th>Sex</th><td>${member.sex}</td></tr>
-        <tr><th>Date of Birth</th><td>${member.dateOfBirth}</td></tr>
-        <tr><th>Citizenship</th><td>${member.citizenship}</td></tr>
-        <tr><th>Civil Status</th><td>${member.civilStatus}</td></tr>
-        <tr><th>PhilSys Card Number</th><td>${member.philsysId}</td></tr>
-        <tr><th>TIN Number</th><td>${member.tin}</td></tr>
-        <tr><th>Mother Full Name</th><td>${member.motherFullName}</td></tr>
-        <tr><th>Spouse Full Name</th><td>${member.spouseFullName}</td></tr>
+    const tables = document.querySelectorAll('.accordion-content .info-table');
+    if (tables.length < 3) {
+        console.warn('Missing table containers for member data.');
+        return;
+    }
+
+    tables[0].innerHTML = `
+        <tr><th>PIN</th><td>${member.pin || ''}</td></tr>
+        <tr><th>Full Name</th><td>${member.fullName || ''}</td></tr>
+        <tr><th>Sex</th><td>${member.sex || ''}</td></tr>
+        <tr><th>Date of Birth</th><td>${member.dateOfBirth || ''}</td></tr>
+        <tr><th>Citizenship</th><td>${member.citizenship || ''}</td></tr>
+        <tr><th>Civil Status</th><td>${member.civilStatus || ''}</td></tr>
+        <tr><th>PhilSys Card Number</th><td>${member.philsysId || ''}</td></tr>
+        <tr><th>TIN Number</th><td>${member.tin || ''}</td></tr>
+        <tr><th>Mother Full Name</th><td>${member.motherFullName || ''}</td></tr>
+        <tr><th>Spouse Full Name</th><td>${member.spouseFullName || ''}</td></tr>
     `;
 
-    const contactTable = document.querySelectorAll('.accordion-content .info-table')[1];
-    contactTable.innerHTML = `
-        <tr><th>Home Number</th><td>${member.homeNumber}</td></tr>
-        <tr><th>Mobile Number</th><td>${member.mobileNumber}</td></tr>
-        <tr><th>Email Address</th><td>${member.email}</td></tr>
-        <tr><th>Permanent Address</th><td>${member.permanentAddress}</td></tr>
-        <tr><th>Business DL</th><td>${member.businessDl}</td></tr>
-        <tr><th>Mailing Address</th><td>${member.mailingAddress}</td></tr>
+    tables[1].innerHTML = `
+        <tr><th>Home Number</th><td>${member.homeNumber || ''}</td></tr>
+        <tr><th>Mobile Number</th><td>${member.mobileNumber || ''}</td></tr>
+        <tr><th>Email Address</th><td>${member.email || ''}</td></tr>
+        <tr><th>Permanent Address</th><td>${member.permanentAddress || ''}</td></tr>
+        <tr><th>Business DL</th><td>${member.businessDl || ''}</td></tr>
+        <tr><th>Mailing Address</th><td>${member.mailingAddress || ''}</td></tr>
     `;
 
-    const dependentsTable = document.querySelectorAll('.accordion-content .info-table')[2]?.querySelector('tbody');
+    const dependentsTable = tables[2]?.querySelector('tbody');
     if (dependentsTable) {
-        if (Array.isArray(dependents) && dependents.length > 0) {
-            dependentsTable.innerHTML = dependents.map(dep => `
+        dependentsTable.innerHTML = dependents.length > 0
+            ? dependents.map(dep => `
                 <tr>
                     <td>${dep.relationship || ''}</td>
                     <td>${dep.fullName || ''}</td>
                     <td>${dep.dateOfBirth || ''}</td>
                     <td>${dep.citizenship || ''}</td>
                     <td>${dep.pwd || ''}</td>
-                </tr>
-            `).join('');
-        } else {
-            dependentsTable.innerHTML = '<tr><td colspan="5">No dependents found.</td></tr>';
-        }
+                </tr>`).join('')
+            : '<tr><td colspan="5">No dependents found.</td></tr>';
     }
 }
 
 // =============================================
 // INITIALIZATION
 // =============================================
-
-// Initialize the page
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
+    // Check if we have cached data first
+    const cachedMember = localStorage.getItem('memberInfo');
+    const cachedDependents = localStorage.getItem('memberDependents');
+    
+    if (cachedMember) {
+        try {
+            const member = JSON.parse(cachedMember);
+            const dependents = JSON.parse(cachedDependents || '[]');
+            displayMemberInfo(member, dependents);
+        } catch (e) {
+            console.error('Error parsing cached data:', e);
+        }
+    }
+    
+    // Always fetch fresh data
     fetchMemberInfo();
 });
 
-// Example: Refetch when navigating to user profile or member info
+// Refresh data when navigating
 document.querySelectorAll('.nav a, .profile-link').forEach(link => {
-    link.addEventListener('click', function(e) {
-        // Optionally, check if the link is for user profile/member info
-        // and force refresh if needed:
-        // fetchMemberInfo(true);
+    link.addEventListener('click', () => {
         fetchMemberInfo();
     });
 });

@@ -332,10 +332,6 @@ app.get('/api/member-info', async (req, res) => {
             [pin]
         );
 
-        if (dependentRows.length === 0) {
-            return res.status(404).json({ error: 'Dependent not found' });
-        }       
-
         // Format the response
         const response = {
             member: {

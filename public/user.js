@@ -83,9 +83,6 @@ async function fetchAccountInfo(forceRefresh = false) {
 function getCurrentMember() {
     return JSON.parse(localStorage.getItem('memberInfo') || 'null');
 }
-function getCurrentAccount() {
-    return JSON.parse(localStorage.getItem('accountInfo') || 'null');
-}
 
 function updateSidebar() {
     const member = getCurrentMember();
@@ -97,6 +94,7 @@ function updateSidebar() {
 
 function displayAccountInfo(account) {
     updateSidebar();
+    
     // Update profile fields
     if (document.getElementById('userID')) {
         document.getElementById('userID').textContent = account?.pin || '';
@@ -193,6 +191,12 @@ document.getElementById('changePasswordForm').addEventListener('submit', async f
         showValidationErrors(['New password and confirm password do not match']);
         return;
     }
+
+    // Prevent changing to the same password
+    if (oldPassword === newPassword) {
+        showValidationErrors(['New password must be different from the old password']);
+        return;
+    }
     
     try {
         const pin = localStorage.getItem('memberPin');
@@ -263,31 +267,44 @@ document.getElementById('confirmNewPassword').addEventListener('input', function
 // =============================================
 // INITIALIZATION
 // =============================================
-
 document.addEventListener('DOMContentLoaded', function() {
+    // First update sidebar with cached data if available
     updateSidebar();
+    
+    // Then fetch fresh data
     const pin = localStorage.getItem('memberPin');
     if (pin) {
-        fetch(`http://localhost:3000/api/user-profile?pin=${encodeURIComponent(pin)}`)
-            .then(res => res.json())
-            .then(accountData => {
-                if (accountData) {
-                    localStorage.setItem('accountInfo', JSON.stringify(accountData));
-                    displayAccountInfo(accountData);
-                }
-            });
+        // Fetch both member info and account info
+        Promise.all([
+            fetch(`http://localhost:3000/api/member-info?pin=${encodeURIComponent(pin)}`).then(res => res.json()),
+            fetch(`http://localhost:3000/api/user-profile?pin=${encodeURIComponent(pin)}`).then(res => res.json())
+        ]).then(([memberData, accountData]) => {
+            if (memberData && memberData.member) {
+                localStorage.setItem('memberInfo', JSON.stringify(memberData.member));
+                updateSidebar();
+            }
+            if (accountData) {
+                localStorage.setItem('accountInfo', JSON.stringify(accountData));
+                displayAccountInfo(accountData);
+            }
+        }).catch(error => {
+            console.error('Error fetching user data:', error);
+            showProfileMessage('Error loading user data.', true);
+        });
     }
 
     // Attach password change handler if form exists
     const passwordForm = document.getElementById('changePasswordForm');
     if (passwordForm) {
-        passwordForm.addEventListener('submit', handlePasswordChange);
+        // passwordForm.addEventListener('submit', handlePasswordChange); // Already handled above
     }
 
     // Optionally, re-fetch profile info when user clicks profile nav link
     const profileNav = document.querySelector('.nav a[href*="profile"], .nav a.user-profile-link');
     if (profileNav) {
-        profileNav.addEventListener('click', fetchAccountInfo);
+        profileNav.addEventListener('click', () => {
+            fetchAccountInfo(true); // Force refresh
+        });
     }
 
     // SPA-like routing for profile and change password

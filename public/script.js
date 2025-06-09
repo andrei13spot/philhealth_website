@@ -82,17 +82,26 @@ if (loginForm) {
         })
         .then(data => {
             if (data.success) {
-                localStorage.setItem('memberPin', data.pin);
-                fetch(`http://localhost:3000/api/member-info?pin=${encodeURIComponent(data.pin)}`)
+                localStorage.clear();
+                sessionStorage.clear();
+        
+                const pin = data.pin;
+                localStorage.setItem('memberPin', pin);
+        
+                // Fetch and wait for member info before redirecting
+                fetch(`http://localhost:3000/api/member-info?pin=${encodeURIComponent(pin)}`)
                     .then(res => res.json())
                     .then(memberData => {
                         if (memberData && memberData.member) {
                             localStorage.setItem('memberInfo', JSON.stringify(memberData.member));
                         }
-                        window.location.href = `dashboard.html?pin=${encodeURIComponent(data.pin)}`;
+                        // Always redirect *after* the fetch is complete
+                        window.location.href = `dashboard.html?pin=${encodeURIComponent(pin)}`;
                     })
-                    .catch(() => {
-                        window.location.href = `dashboard.html?pin=${encodeURIComponent(data.pin)}`;
+                    .catch(error => {
+                        console.error('Failed to fetch member info:', error);
+                        // Still redirect, fallback mode
+                        window.location.href = `dashboard.html?pin=${encodeURIComponent(pin)}`;
                     });
             } else {
                 alert(data.error || 'Login failed. Please try again.');

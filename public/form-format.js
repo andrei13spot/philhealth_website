@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             console.log('Response data:', data);
             if (data.success && data.pin) {
-                window.location.href = 'account-success.html?pin=' + encodeURIComponent(data.pin);
+                window.location.href = 'confirmation.html?pin=' + encodeURIComponent(data.pin);
             } else {
                 alert(data.error || 'Registration failed. Please try again.');
             }
