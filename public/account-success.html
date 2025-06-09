@@ -82,8 +82,21 @@
         <i class="fa fa-check-circle"></i>
         <h2>Account Created Successfully!</h2>
         <p>Your PhilHealth digital account has been created successfully. You can now log in to access your account.</p>
+        <span class="pin" id="pinDisplay"></span>
         <a href="index.html" class="login-btn">Go to Login</a>
     </div>
 
+    <script>
+        // Get pin from query string and display it
+        const params = new URLSearchParams(window.location.search);
+        const pin = params.get('pin');
+        if(pin) {
+            document.getElementById('pinDisplay').textContent = 'PhilHealth ID: ' + pin;
+            console.log('PIN from URL:', pin); // Debug log
+        } else {
+            console.log('No PIN found in URL'); // Debug log
+        }
+    </script>
+    
 </body>
 </html> 

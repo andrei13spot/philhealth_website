@@ -495,3 +495,59 @@ html {
   display: block;
   pointer-events: auto;
 }
+
+/* Edit button styling */
+.edit-btn {
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 18px;
+    font-size: 1em;
+    font-weight: 500;
+    margin-top: 0;
+    margin-bottom: 10px;
+    margin-right: 0;
+    float: right;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+.edit-btn:hover {
+    background: #1251a3;
+}
+
+/* Confirm/Cancel action buttons */
+.edit-actions {
+    margin-top: 16px;
+    text-align: right;
+}
+.edit-actions .btn-success {
+    background: #43a047 !important;
+    color: #fff !important;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 20px;
+    font-size: 1em;
+    font-weight: 500;
+    margin-right: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.edit-actions .btn-success:hover {
+    background: #2e7031 !important;
+}
+.edit-actions .btn-cancel {
+    background: #e53935 !important;
+    color: #fff !important;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 20px;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.edit-actions .btn-cancel:hover {
+    background: #b71c1c !important;
+}

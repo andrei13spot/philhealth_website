@@ -14,7 +14,7 @@ function openSidebar() {
 
 function closeSidebar() {
     sidebar.classList.remove('open');
-    overlay.classList.remove('show');
+        overlay.classList.remove('show');
     mainContent.classList.remove('shifted');
 }
 
@@ -140,6 +140,133 @@ function displayMemberInfo(member, dependents) {
 }
 
 // =============================================
+// EDIT/UPDATE FUNCTIONALITY
+// =============================================
+
+function createEditButton(section, onEdit) {
+    const btn = document.createElement('button');
+    btn.className = 'edit-btn';
+    btn.textContent = 'Edit';
+    btn.style.float = 'right';
+    btn.style.marginBottom = '8px';
+    btn.onclick = onEdit;
+    section.insertBefore(btn, section.firstChild);
+    return btn;
+}
+
+function createActionButtons(onConfirm, onCancel) {
+    const container = document.createElement('div');
+    container.className = 'edit-actions';
+    container.style.marginTop = '12px';
+    container.style.textAlign = 'right';
+
+    const confirmBtn = document.createElement('button');
+    confirmBtn.className = 'btn btn-success';
+    confirmBtn.textContent = 'Confirm';
+    confirmBtn.style.marginRight = '8px';
+    confirmBtn.onclick = onConfirm;
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'btn btn-cancel';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.onclick = onCancel;
+
+    container.appendChild(confirmBtn);
+    container.appendChild(cancelBtn);
+    return container;
+}
+
+function makeSectionEditable(section, fields, originalData, onSave, isContactDetails) {
+    if (section.querySelector('.edit-actions') || section.parentElement.querySelector('.edit-actions')) return;
+    const rows = section.querySelectorAll('tr');
+    rows.forEach((row, i) => {
+        const th = row.querySelector('th');
+        const td = row.querySelector('td');
+        const field = fields[i];
+        const key = field.key;
+        const placeholder = field.placeholder || '';
+        let input;
+        if (isContactDetails) {
+            input = document.createElement('input');
+            input.type = field.type || 'text';
+            input.value = originalData[key] || '';
+            input.placeholder = placeholder;
+            input.className = 'form-control';
+            if (field.maxlength) input.maxLength = field.maxlength;
+            if (field.numeric) {
+                input.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '').slice(0, field.maxlength);
+                });
+            }
+        } else {
+            input = document.createElement('input');
+            input.type = 'text';
+            input.value = originalData[key] || '';
+            input.placeholder = placeholder;
+            input.className = 'form-control';
+        }
+        td.innerHTML = '';
+        td.appendChild(input);
+    });
+    const actions = createActionButtons(
+        () => {
+            const newData = {};
+            rows.forEach((row, i) => {
+                const key = fields[i].key;
+                newData[key] = row.querySelector('input').value;
+            });
+            onSave(newData);
+            // Hide both Confirm and Cancel buttons after clicking Confirm
+            if (isContactDetails) {
+                actions.remove();
+                const editBtn = section.querySelector('.edit-btn');
+                if (editBtn) {
+                    editBtn.style.display = '';
+                    editBtn.disabled = false;
+                }
+            }
+        },
+        () => {
+            rows.forEach((row, i) => {
+                const key = fields[i].key;
+                row.querySelector('td').textContent = originalData[key] || '';
+            });
+            actions.remove();
+            const editBtn = section.querySelector('.edit-btn');
+            if (editBtn) {
+                editBtn.style.display = '';
+                editBtn.disabled = false;
+            }
+        }
+    );
+    if (isContactDetails) {
+        section.parentElement.appendChild(actions);
+    } else {
+        section.appendChild(actions);
+    }
+    const editBtn = section.querySelector('.edit-btn');
+    if (editBtn) {
+        editBtn.style.display = 'none';
+        editBtn.disabled = true;
+    }
+}
+
+function updateMemberInfoUI(member) {
+    // Update the UI with new member info
+    displayMemberInfo(member, JSON.parse(localStorage.getItem('memberDependents') || '[]'));
+}
+
+function updateContactDetailsUI(member) {
+    // Update the UI with new contact info
+    displayMemberInfo(member, JSON.parse(localStorage.getItem('memberDependents') || '[]'));
+}
+
+function updateDependentsUI(dependents) {
+    // Update the UI with new dependents
+    displayMemberInfo(JSON.parse(localStorage.getItem('memberInfo') || '{}'), dependents);
+}
+
+// =============================================
 // INITIALIZATION
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -159,6 +286,243 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Always fetch fresh data
     fetchMemberInfo();
+
+    setTimeout(() => { // Wait for displayMemberInfo to render tables
+        const tables = document.querySelectorAll('.accordion-content .info-table');
+        if (tables.length < 3) return;
+        // Contact Details
+        createEditButton(tables[1].parentElement, () => {
+            const member = JSON.parse(localStorage.getItem('memberInfo') || '{}');
+            makeSectionEditable(
+                tables[1],
+                [
+                    { key: 'homeNumber', placeholder: 'Home Number', type: 'text', maxlength: 20, numeric: true },
+                    { key: 'mobileNumber', placeholder: 'Mobile Number', type: 'text', maxlength: 20, numeric: true },
+                    { key: 'email', placeholder: 'Email Address', type: 'email', maxlength: 50 },
+                    { key: 'permanentAddress', placeholder: 'Permanent Address', type: 'text', maxlength: 100 },
+                    { key: 'businessDl', placeholder: 'Business DL', type: 'text', maxlength: 20, numeric: true },
+                    { key: 'mailingAddress', placeholder: 'Mailing Address', type: 'text', maxlength: 100 }
+                ],
+                member,
+                (newData) => {
+                    fetch('http://localhost:3000/api/update-member-contact', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ pin: member.pin, ...newData })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            localStorage.setItem('memberInfo', JSON.stringify(data.member));
+                            updateContactDetailsUI(data.member);
+                            showSuccessMessage('Contact details updated successfully!');
+                            // Refresh the page after successful update
+                            fetchMemberInfo();
+                            // Remove actions and show edit button
+                            const actions = tables[1].parentElement.querySelector('.edit-actions');
+                            if (actions) actions.remove();
+                            const editBtn = tables[1].parentElement.querySelector('.edit-btn');
+                            if (editBtn) {
+                                editBtn.style.display = '';
+                                editBtn.disabled = false;
+                            }
+                        } else {
+                            alert(data.error || 'Failed to update contact details');
+                        }
+                    });
+                },
+                true // pass true for contact details for custom input rendering
+            );
+        });
+        // Dependents
+        const dependents = JSON.parse(localStorage.getItem('memberDependents') || '[]');
+        createEditButton(tables[2].parentElement, () => {
+            // For dependents, allow editing each row
+            const tbody = tables[2].querySelector('tbody');
+            if (!tbody) return;
+            const originalDependents = dependents.map(dep => ({ ...dep }));
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            // Dropdown options (should match registration form)
+            const relationshipOptions = [
+                'Select Relationship    ', 'Spouse', 'Child', 'Parent', 'Sibling', 'Other'
+            ];
+            const citizenshipOptions = [
+                'Select Citizenship', 'Filipino', 'Dual Citizen', 'Foreigner'
+            ];
+            const pwdOptions = [
+                'Select PWD', 'No', 'Yes'
+            ];
+
+            function renderEditableDependents(deps) {
+                tbody.innerHTML = '';
+                deps.forEach((dep, i) => {
+                    const tr = document.createElement('tr');
+                    // Relationship (dropdown)
+                    const tdRel = document.createElement('td');
+                    const selRel = document.createElement('select');
+                    selRel.className = 'form-control';
+                    relationshipOptions.forEach(opt => {
+                        const option = document.createElement('option');
+                        option.value = opt;
+                        option.textContent = opt;
+                        if (dep.relationship === opt) option.selected = true;
+                        selRel.appendChild(option);
+                    });
+                    tdRel.appendChild(selRel);
+                    tr.appendChild(tdRel);
+                    // Full Name (text)
+                    const tdName = document.createElement('td');
+                    const inputName = document.createElement('input');
+                    inputName.type = 'text';
+                    inputName.value = dep.fullName || '';
+                    inputName.className = 'form-control';
+                    inputName.maxLength = 50;
+                    tdName.appendChild(inputName);
+                    tr.appendChild(tdName);
+                    // Date of Birth (date)
+                    const tdDob = document.createElement('td');
+                    const inputDob = document.createElement('input');
+                    inputDob.type = 'date';
+                    // Format the date for the input field (YYYY-MM-DD)
+                    if (dep.dateOfBirth) {
+                        const date = new Date(dep.dateOfBirth);
+                        if (!isNaN(date.getTime())) {
+                            const year = date.getFullYear();
+                            const month = String(date.getMonth() + 1).padStart(2, '0');
+                            const day = String(date.getDate()).padStart(2, '0');
+                            inputDob.value = `${year}-${month}-${day}`;
+                        }
+                    }
+                    inputDob.className = 'form-control';
+                    tdDob.appendChild(inputDob);
+                    tr.appendChild(tdDob);
+                    // Citizenship (dropdown)
+                    const tdCit = document.createElement('td');
+                    const selCit = document.createElement('select');
+                    selCit.className = 'form-control';
+                    citizenshipOptions.forEach(opt => {
+                        const option = document.createElement('option');
+                        option.value = opt;
+                        option.textContent = opt;
+                        if (dep.citizenship === opt) option.selected = true;
+                        selCit.appendChild(option);
+                    });
+                    tdCit.appendChild(selCit);
+                    tr.appendChild(tdCit);
+                    // PWD (dropdown)
+                    const tdPwd = document.createElement('td');
+                    const selPwd = document.createElement('select');
+                    selPwd.className = 'form-control';
+                    pwdOptions.forEach(opt => {
+                        const option = document.createElement('option');
+                        option.value = opt;
+                        option.textContent = opt;
+                        if (dep.pwd === opt) option.selected = true;
+                        selPwd.appendChild(option);
+                    });
+                    tdPwd.appendChild(selPwd);
+                    tr.appendChild(tdPwd);
+                    // Delete button
+                    const tdDelete = document.createElement('td');
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'btn btn-danger btn-sm';
+                    delBtn.textContent = 'Delete';
+                    delBtn.onclick = () => {
+                        editableDependents.splice(i, 1);
+                        renderEditableDependents(editableDependents);
+                    };
+                    tdDelete.appendChild(delBtn);
+                    tr.appendChild(tdDelete);
+                    tbody.appendChild(tr);
+                });
+            }
+
+            let editableDependents = dependents.map(dep => ({ ...dep }));
+            const addBtn = document.createElement('button');
+            addBtn.className = 'btn btn-success';
+            addBtn.textContent = 'Add Dependent';
+            addBtn.style.marginBottom = '10px';
+            addBtn.onclick = () => {
+                editableDependents.push({ relationship: '', fullName: '', dateOfBirth: '', citizenship: '', pwd: '' });
+                renderEditableDependents(editableDependents);
+            };
+            tables[2].parentElement.insertBefore(addBtn, tables[2]);
+
+            // Add header for delete column if not present
+            const thead = tables[2].querySelector('thead');
+            if (thead && thead.querySelectorAll('th').length === 5) {
+                const th = document.createElement('th');
+                th.textContent = 'Action';
+                thead.querySelector('tr').appendChild(th);
+            }
+
+            renderEditableDependents(editableDependents);
+
+            const actions = createActionButtons(
+                () => {
+                    // Gather new dependents data
+                    const newDependents = Array.from(tbody.querySelectorAll('tr')).map(row => {
+                        const cells = row.querySelectorAll('td');
+                        return {
+                            relationship: cells[0].querySelector('select').value,
+                            fullName: cells[1].querySelector('input').value,
+                            dateOfBirth: cells[2].querySelector('input').value,
+                            citizenship: cells[3].querySelector('select').value,
+                            pwd: cells[4].querySelector('select').value
+                        };
+                    }).filter(dep => dep.fullName.trim() !== '');
+                    fetch('http://localhost:3000/api/update-dependents', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ pin: localStorage.getItem('memberPin'), dependents: newDependents })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            localStorage.setItem('memberDependents', JSON.stringify(data.dependents));
+                            updateDependentsUI(data.dependents);
+                            showSuccessMessage('Dependents updated successfully!');
+                            // Refresh the page after successful update
+                            fetchMemberInfo();
+                            // Remove actions and show edit button
+                            actions.remove();
+                            addBtn.remove();
+                            const editBtn = tables[2].parentElement.querySelector('.edit-btn');
+                            if (editBtn) {
+                                editBtn.style.display = '';
+                                editBtn.disabled = false;
+                            }
+                            // Remove the Action column from thead
+                            const thead = tables[2].querySelector('thead');
+                            if (thead && thead.querySelectorAll('th').length === 6) {
+                                thead.querySelector('tr').removeChild(thead.querySelectorAll('th')[5]);
+                            }
+                        } else {
+                            alert(data.error || 'Failed to update dependents');
+                        }
+                    });
+                },
+                () => {
+                    updateDependentsUI(originalDependents);
+                    actions.remove();
+                    addBtn.remove();
+                    const editBtn = tables[2].parentElement.querySelector('.edit-btn');
+                    if (editBtn) {
+                        editBtn.style.display = '';
+                        editBtn.disabled = false;
+                    }
+                    // Remove the Action column from thead
+                    const thead = tables[2].querySelector('thead');
+                    if (thead && thead.querySelectorAll('th').length === 6) {
+                        thead.querySelector('tr').removeChild(thead.querySelectorAll('th')[5]);
+                    }
+                }
+            );
+            tables[2].parentElement.appendChild(actions);
+            tables[2].parentElement.querySelector('.edit-btn').style.display = 'none';
+        });
+    }, 500);
 });
 
 // Refresh data when navigating
@@ -167,3 +531,30 @@ document.querySelectorAll('.nav a, .profile-link').forEach(link => {
         fetchMemberInfo();
     });
 });
+
+function showSuccessMessage(message) {
+    let msgDiv = document.getElementById('dashboardSuccessMsg');
+    if (!msgDiv) {
+        msgDiv = document.createElement('div');
+        msgDiv.id = 'dashboardSuccessMsg';
+        msgDiv.style.position = 'fixed';
+        msgDiv.style.top = '80px';
+        msgDiv.style.right = '40px';
+        msgDiv.style.zIndex = '9999';
+        msgDiv.style.background = '#43a047';
+        msgDiv.style.color = '#fff';
+        msgDiv.style.padding = '16px 32px';
+        msgDiv.style.borderRadius = '6px';
+        msgDiv.style.fontSize = '1.1em';
+        msgDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+        msgDiv.style.transition = 'opacity 0.3s';
+        document.body.appendChild(msgDiv);
+    }
+    msgDiv.textContent = message;
+    msgDiv.style.opacity = '1';
+    msgDiv.style.display = 'block';
+    setTimeout(() => {
+        msgDiv.style.opacity = '0';
+        setTimeout(() => { msgDiv.style.display = 'none'; }, 400);
+    }, 2000);
+}

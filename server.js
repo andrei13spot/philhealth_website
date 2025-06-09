@@ -248,7 +248,7 @@ app.post('/create-account', async (req, res) => {
             'INSERT INTO account (pin, email, password_hash) VALUES (?, ?, ?)',
             [pin, email, password_hash]
         );
-        res.json({ success: true, message: 'Account created successfully' });
+        res.json({ success: true, message: 'Account created successfully', pin: pin });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
@@ -454,6 +454,46 @@ app.post('/api/delete-account', async (req, res) => {
         // Delete from member
         await db.promise().query('DELETE FROM member WHERE pin = ?', [pin]);
         res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Update contact details
+app.post('/api/update-member-contact', async (req, res) => {
+    const { pin, homeNumber, mobileNumber, email, permanentAddress, businessDl, mailingAddress } = req.body;
+    if (!pin) return res.status(400).json({ success: false, error: 'PIN is required' });
+    try {
+        await db.promise().query(
+            `UPDATE member SET home_no=?, mobile_no=?, email_address=?, permanent_address=?, business_dl=?, mailing_address=? WHERE pin=?`,
+            [homeNumber, mobileNumber, email, permanentAddress, businessDl, mailingAddress, pin]
+        );
+        const [rows] = await db.promise().query('SELECT * FROM member WHERE pin=?', [pin]);
+        res.json({ success: true, member: rows[0] });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Update dependents
+app.post('/api/update-dependents', async (req, res) => {
+    const { pin, dependents } = req.body;
+    if (!pin) return res.status(400).json({ success: false, error: 'PIN is required' });
+    try {
+        // Remove all existing dependents for this pin
+        await db.promise().query('DELETE FROM dependent WHERE pin=?', [pin]);
+        // Insert new dependents
+        for (const dep of dependents) {
+            if (dep.fullName) { // Only insert if fullName is provided
+                await db.promise().query(
+                    'INSERT INTO dependent (pin, dependent_full_name, dependent_relationship, dependent_date_of_birth, dependent_citizenship, dependent_pwd) VALUES (?, ?, ?, ?, ?, ?)',
+                    [pin, dep.fullName, dep.relationship, dep.dateOfBirth, dep.citizenship, dep.pwd]
+                );
+            }
+        }
+        // Return updated dependents
+        const [rows] = await db.promise().query('SELECT * FROM dependent WHERE pin=?', [pin]);
+        res.json({ success: true, dependents: rows });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    window.location.href = 'account-success.html?pin=' + encodeURIComponent(pin);
+                    window.location.href = 'account-success.html?pin=' + encodeURIComponent(data.pin);
                 } else {
                     alert(data.error || 'Registration failed. Please try again.');
                 }
