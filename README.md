@@ -22,9 +22,9 @@ This project is a full-stack web application for managing PhilHealth member acco
 - **Admin Dashboard**: View statistics (total members, dependents, active accounts) and recent activities.
 - **Member Management**: Search, filter, view, edit, and generate reports for members. Supports pagination and advanced filtering (by PIN, name, email, mobile, type, status, citizenship).
 - **Dependents Management**: Search, filter, view, edit, and generate reports for dependents. Supports filtering by dependent name, PIN, relationship, citizenship, and PWD status. Pagination included.
-- **Account Management**: View and manage user accounts, including creation and deletion.
-- **Reports**: Generate PDF reports for members and dependents, including all relevant details.
-- **Documentation**: Access system documentation from the admin sidebar.
+- **Account Management**: View and manage user accounts, including creation and deletion. (Coming Soon)
+- **Reports**: Generate PDF reports for members and dependents, including all relevant details. (Coming Soon)
+- **Documentation**: Access system documentation from the admin sidebar. (Coming Soon)
 
 ### Search, Filtering, and Pagination
 - **Dynamic Search**: All management tables support dynamic search with multiple filters. Search is case-insensitive and supports partial matches.
