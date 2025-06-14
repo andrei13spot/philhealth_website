@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Reports - PhilHealth Portal</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="admin-management.css">
+    <link rel="icon" href="weblogo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="header-bar">
+        <img src="topbarlogo.png" alt="PhilHealth Logo" class="logo" />
+        <button class="burger-btn" id="burgerBtn">&#9776;</button>
+    </div>
+    <div class="sidebar open" id="sidebar">
+        <div class="sidebar-logo-bar">
+            <img src="topbarlogo.png" class="logo" alt="PhilHealth Logo" />
+        </div>
+        <div class="sidebar-content">
+            <div class="sidebar-header">
+                <div class="sidebar-user">Admin</div>
+                <hr style="border:1px solid #2e2c2c;margin:10px 0 0 0;" />
+            </div>
+            <div class="nav">
+                <a href="admin-dashboard.html"><i class="fas fa-tachometer-alt"></i>Overview</a>
+                <a href="admin-members.html"><i class="fas fa-users"></i>Members</a>
+                <a href="admin-dependents.html"><i class="fas fa-child"></i>Dependents</a>
+                <a href="admin-accounts.html"><i class="fas fa-user"></i>Accounts</a>
+                <a href="admin-reports.html" class="active"><i class="fas fa-chart-bar"></i>Reports</a>
+                <a href="admin-docs.html"><i class="fas fa-database"></i>Documentation</a>
+                <a href="welcome.html" class="logout"><i class="fas fa-sign-out-alt"></i>Log Out</a>
+            </div>
+        </div>
+    </div>
+    <div class="overlay" id="sidebarOverlay"></div>
+    <div class="main-content shifted">
+        <div class="management-card">
+            <h2>Reports</h2>
+            <div class="content" style="text-align:center; padding: 40px 0;">
+                <i class="fas fa-chart-bar fa-4x" style="color:#bdbdbd;"></i>
+                <h3 style="margin-top:20px; color:#888;">This page is under development.<br>Coming soon!</h3>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Sidebar toggle for mobile
+        document.getElementById('burgerBtn').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        });
+        document.getElementById('sidebarOverlay').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('open');
+            this.classList.remove('show');
+        });
+    </script>
+</body>
+</html> 

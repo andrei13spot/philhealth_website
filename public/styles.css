@@ -665,3 +665,26 @@ input::placeholder {
     width: 300px;
     box-sizing: border-box;
 }
+
+/* Go Back Button Styles */
+.go-back-btn {
+    position: absolute;
+    top: 24px;
+    right: 32px;
+    background: #e53935;
+    color: #fff;
+    border: 1px solid #e53935;
+    border-radius: 4px;
+    padding: 8px 18px;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(229, 57, 53, 0.08);
+    z-index: 100;
+}
+.go-back-btn:hover {
+    background: #b71c1c;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(229, 57, 53, 0.15);
+}

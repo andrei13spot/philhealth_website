@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - PhilHealth Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="icon" type="image/png" href="weblogo.png">
+</head>
+<body>
+    <div class="container">
+        <div class="login-card">
+            <div class="logo">
+                <img src="topbarlogo.png" alt="PhilHealth Logo">
+            </div>
+            <h2><i class="fa fa-user-secret"></i> Admin Portal</h2>
+            <a href="welcome.html" class="go-back-btn">&larr; Go Back</a>
+            <form id="adminLoginForm" autocomplete="off">
+                <div class="form-group">
+                    <input type="text" id="adminUsername" name="adminUsername" required placeholder="Username">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="adminPassword" name="adminPassword" required placeholder="Password">
+                </div>
+                <div class="form-group captcha-group">
+                    <div class="captcha-container">
+                        <div id="adminCaptchaDisplay" class="captcha-display"></div>
+                    </div>
+                    <input type="text" id="adminCaptcha" name="adminCaptcha" required placeholder="Enter the text shown above">
+                </div>
+                <button type="button" id="refreshAdminCaptcha" class="refresh-btn"><i class="fa fa-refresh"></i> Refresh CAPTCHA</button>
+                <button type="submit" class="login-btn"><i class="fa fa-sign-in"></i> Log In</button>
+            </form>
+            <div id="adminLoginError" style="color:#d32f2f; margin-top:15px; display:none;">Invalid credentials or CAPTCHA. Please try again.</div>
+        </div>
+    </div>
+    <script src="admin.js"></script>
+</body>
+</html> 

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Details - PhilHealth Portal</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="admin-management.css">
+    <link rel="stylesheet" href="admin-member-details.css">
+    <link rel="icon" href="weblogo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+</head>
+<body>
+    <div class="header-bar">
+        <img src="topbarlogo.png" alt="PhilHealth Logo" class="logo" />
+        <button class="burger-btn" id="burgerBtn">&#9776;</button>
+    </div>
+    <div class="sidebar open" id="sidebar">
+        <div class="sidebar-logo-bar">
+            <img src="topbarlogo.png" class="logo" alt="PhilHealth Logo" />
+        </div>
+        <div class="sidebar-content">
+            <div class="sidebar-header">
+                <div class="sidebar-user">Admin</div>
+                <hr style="border:1px solid #2e2c2c;margin:10px 0 0 0;" />
+            </div>
+            <div class="nav">
+                <a href="admin-dashboard.html"><i class="fas fa-tachometer-alt"></i>Overview</a>
+                <a href="admin-members.html"><i class="fas fa-users"></i>Members</a>
+                <a href="admin-dependents.html"><i class="fas fa-child"></i>Dependents</a>
+                <a href="admin-accounts.html"><i class="fas fa-user"></i>Accounts</a>
+                <a href="admin-reports.html"><i class="fas fa-chart-bar"></i>Reports</a>
+                <a href="admin-docs.html"><i class="fas fa-database"></i>Documentation</a>
+                <a href="welcome.html" class="logout"><i class="fas fa-sign-out-alt"></i>Log Out</a>
+            </div>
+        </div>
+    </div>
+    <div class="overlay" id="sidebarOverlay"></div>
+    <div class="admin-member-details-container">
+        <div class="admin-member-details-card">
+            <h2>Member Details</h2>
+            <form id="memberDetailsForm" class="edit-member-form">
+                <div class="form-row">
+                    <label for="pin">PIN</label>
+                    <input type="text" id="pin" name="pin" readonly placeholder="00-271990952-9" />
+                </div>
+                <div class="form-row">
+                    <label for="member_full_name">Name</label>
+                    <input type="text" id="member_full_name" name="member_full_name" readonly placeholder="Enter Name" />
+                </div>
+                <div class="form-row">
+                    <label for="email_address">Email</label>
+                    <input type="email" id="email_address" name="email_address" readonly placeholder="Enter Email" />
+                </div>
+                <div class="form-row">
+                    <label for="mobile_no">Mobile</label>
+                    <input type="text" id="mobile_no" name="mobile_no" readonly placeholder="Enter Mobile Number" />
+                </div>
+                <div class="form-row">
+                    <label for="member_type">Member Type</label>
+                    <select id="member_type" name="member_type" disabled>
+                        <option value="Direct Contributor">Direct Contributor</option>
+                        <option value="Indirect Contributor">Indirect Contributor</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="civil_status">Civil Status</label>
+                    <select id="civil_status" name="civil_status" disabled>
+                        <option value="Single">Single</option>
+                        <option value="Married">Married</option>
+                        <option value="Annulled">Annulled</option>
+                        <option value="Widow/er">Widow/er</option>
+                        <option value="Legally Separated">Legally Separated</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="citizenship">Citizenship</label>
+                    <select id="citizenship" name="citizenship" disabled>
+                        <option value="Filipino">Filipino</option>
+                        <option value="Dual Citizen">Dual Citizen</option>
+                        <option value="Foreign National">Foreign National</option>
+                    </select>
+                </div>
+                <div class="form-actions" id="viewActions">
+                    <button type="button" class="action-btn admin-edit-btn" id="editBtn"><i class="fas fa-edit"></i> Edit</button>
+                    <button type="button" class="action-btn report-btn back-btn" onclick="window.location.href='admin-members.html'">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                </div>
+                <div class="form-actions" id="editActions" style="display:none;">
+                    <button type="submit" class="action-btn admin-edit-btn save-btn"><i class="fas fa-save"></i> Save</button>
+                    <button type="button" class="action-btn report-btn cancel-btn" id="cancelBtn"><i class="fas fa-times"></i> Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+    // Sidebar toggle for mobile
+    document.getElementById('burgerBtn').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebarOverlay').classList.toggle('show');
+    });
+    document.getElementById('sidebarOverlay').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.remove('open');
+        this.classList.remove('show');
+    });
+    </script>
+    <script src="admin-member-details.js"></script>
+</body>
+</html> 

@@ -29,11 +29,7 @@ const db = mysql.createConnection({
     password: 'password',
     database: 'philhealth_db',
     port: 3306,
-    connectTimeout: 10000,
-    acquireTimeout: 10000,
-    timeout: 10000,
-    enableKeepAlive: true,
-    keepAliveInitialDelay: 0
+    connectTimeout: 10000
 });
 
 // =============================================
@@ -109,6 +105,14 @@ function formatDate(dateString) {
     return `${month}/${day}/${year}`;
 }
 
+// Helper to check if a date is in the future
+function isFutureDate(dateString) {
+    const date = new Date(dateString);
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    return date > today;
+}
+
 // =============================================
 // API ENDPOINTS
 // =============================================
@@ -157,6 +161,10 @@ app.post('/register', (req, res) => {
         // Log the SQL query
         console.log('Inserting member with data:', JSON.stringify(member, null, 2));
         
+        if (member.date_of_birth && isFutureDate(member.date_of_birth)) {
+            return res.status(400).json({ error: 'Date of Birth cannot be in the future.' });
+        }
+        
         db.query('INSERT INTO member SET ?', member, (err) => {
             if (err) {
                 console.error('Registration error:', err);
@@ -175,7 +183,10 @@ app.post('/register', (req, res) => {
                 if (dependents.length === 0) {
                     return res.json({ success: true, message: 'Registration successful', pin });
                 }
-                dependents.forEach(dep => {
+                for (const dep of dependents) {
+                    if (dep.dob && isFutureDate(dep.dob)) {
+                        return res.status(400).json({ error: 'Dependent Date of Birth cannot be in the future.' });
+                    }
                     const depData = {
                         pin: member.pin,
                         dependent_full_name: dep.fullName,
@@ -195,7 +206,7 @@ app.post('/register', (req, res) => {
                             res.json({ success: true, message: 'Registration successful', pin });
                         }
                     });
-                });
+                }
             } else {
                 res.json({ success: true, message: 'Registration successful', pin });
             }
@@ -485,6 +496,9 @@ app.post('/api/update-dependents', async (req, res) => {
         // Insert new dependents
         for (const dep of dependents) {
             if (dep.fullName) { // Only insert if fullName is provided
+                if (dep.dob && isFutureDate(dep.dob)) {
+                    return res.status(400).json({ error: 'Dependent Date of Birth cannot be in the future.' });
+                }
                 await db.promise().query(
                     'INSERT INTO dependent (pin, dependent_full_name, dependent_relationship, dependent_date_of_birth, dependent_citizenship, dependent_pwd) VALUES (?, ?, ?, ?, ?, ?)',
                     [pin, dep.fullName, dep.relationship, dep.dateOfBirth, dep.citizenship, dep.pwd]
@@ -502,6 +516,583 @@ app.post('/api/update-dependents', async (req, res) => {
 // Add a test endpoint to verify server is working
 app.get('/test', (req, res) => {
     res.json({ message: 'Server is running' });
+});
+
+// =============================================
+// ADMIN DASHBOARD ENDPOINTS
+// =============================================
+
+// Get dashboard statistics
+app.get('/api/admin/dashboard/stats', (req, res) => {
+    // Get total members
+    db.query('SELECT COUNT(*) as count FROM member', (err, membersResult) => {
+        if (err) {
+            console.error('Error fetching total members:', err);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        // Get total dependents
+        db.query('SELECT COUNT(*) as count FROM dependent', (err, dependentsResult) => {
+            if (err) {
+                console.error('Error fetching total dependents:', err);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            // Get active accounts (number of created accounts)
+            db.query('SELECT COUNT(*) as count FROM account', (err, activeAccountsResult) => {
+                if (err) {
+                    console.error('Error fetching active accounts:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+
+                res.json({
+                    totalMembers: membersResult[0].count,
+                    totalDependents: dependentsResult[0].count,
+                    activeAccounts: activeAccountsResult[0].count
+                });
+            });
+        });
+    });
+});
+
+// Get recent activities
+app.get('/api/admin/dashboard/activities', (req, res) => {
+    // Fetch 5 most recent dependents only
+    db.query(
+        "SELECT 'dependent_add' as type, CONCAT('New dependent added: ', dependent_full_name) as description FROM dependent ORDER BY dependent_key DESC LIMIT 5",
+        (err, dependentResults) => {
+            if (err) {
+                console.error('Error fetching recent dependent activities:', err);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+            res.json(dependentResults);
+        }
+    );
+});
+
+// Generate report
+app.post('/api/admin/generate-report', (req, res) => {
+    const PDFDocument = require('pdfkit');
+    const doc = new PDFDocument();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=philhealth-report.pdf');
+    doc.pipe(res);
+
+    doc.fontSize(25).text('PhilHealth Report', { align: 'center' });
+    doc.moveDown();
+
+    db.query(`
+        SELECT 
+            (SELECT COUNT(*) FROM member) as total_members,
+            (SELECT COUNT(*) FROM dependent) as total_dependents,
+            (SELECT COUNT(*) FROM account) as active_accounts
+    `, (err, stats) => {
+        if (err) {
+            console.error('Error generating report:', err);
+            doc.fontSize(14).fillColor('red').text('Error generating report.');
+            doc.end();
+            return;
+        }
+
+        doc.fontSize(14).fillColor('black').text('Statistics', { underline: true });
+        doc.moveDown();
+        doc.fontSize(12).text(`Total Members: ${stats[0].total_members}`);
+        doc.text(`Total Dependents: ${stats[0].total_dependents}`);
+        doc.text(`Active Accounts: ${stats[0].active_accounts}`);
+        doc.moveDown();
+        
+        // Get recent dependents only
+        db.query(`
+            SELECT CONCAT('Dependent: ', dependent_full_name) as description
+            FROM dependent
+            ORDER BY dependent_key DESC
+            LIMIT 10
+        `, (err, activities) => {
+            if (err) {
+                console.error('Error generating report:', err);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            // Add activities to PDF
+            doc.fontSize(14).text('Recent Dependents', { underline: true });
+            doc.moveDown();
+            activities.forEach(activity => {
+                doc.fontSize(12).text(activity.description);
+            });
+            
+            // Finalize PDF
+            doc.end();
+        });
+    });
+});
+
+// Check system status
+app.get('/api/admin/system-status', (req, res) => {
+    // Check database connection with a timeout
+    const timeout = setTimeout(() => {
+        res.json({
+            database: false,
+            apiServices: true
+        });
+    }, 5000); // 5 second timeout
+
+    db.query('SELECT 1', (err) => {
+        clearTimeout(timeout); // Clear the timeout if query completes
+        
+        if (err) {
+            console.error('Database connection error:', err);
+            res.json({
+                database: false,
+                apiServices: true
+            });
+        } else {
+            res.json({
+                database: true,
+                apiServices: true
+            });
+        }
+    });
+});
+
+// Member search endpoint
+app.get('/api/admin/members/search', async (req, res) => {
+    try {
+        const {
+            searchTerm,
+            memberType,
+            civilStatus,
+            citizenship,
+            page = 1,
+            limit = 10
+        } = req.query;
+
+        const offset = (page - 1) * limit;
+        const params = [];
+        let whereClause = '';
+        let whereKeyword = '';
+
+        // Build search conditions
+        if (searchTerm) {
+            whereClause += `m.pin LIKE ? OR m.member_full_name LIKE ? OR m.email_address LIKE ? OR m.mobile_no LIKE ?`;
+            const searchPattern = `%${searchTerm}%`;
+            params.push(searchPattern, searchPattern, searchPattern, searchPattern);
+        }
+        if (memberType) {
+            if (whereClause) whereClause += ' AND ';
+            whereClause += 'm.member_type = ?';
+            params.push(memberType);
+        }
+        if (civilStatus) {
+            if (whereClause) whereClause += ' AND ';
+            whereClause += 'm.civil_status = ?';
+            params.push(civilStatus);
+        }
+        if (citizenship) {
+            if (whereClause) whereClause += ' AND ';
+            whereClause += 'm.citizenship = ?';
+            params.push(citizenship);
+        }
+        if (whereClause) {
+            whereKeyword = 'WHERE ';
+        }
+
+        // Get total count for pagination
+        const [countResult] = await db.promise().query(
+            `SELECT COUNT(*) as total 
+             FROM member m 
+             ${whereKeyword}${whereClause}`,
+            params
+        );
+        const total = countResult[0].total;
+        const totalPages = Math.ceil(total / limit);
+
+        // Get members with pagination
+        const [members] = await db.promise().query(
+            `SELECT 
+                m.*, 
+                COUNT(d.pin) as dependentCount
+             FROM member m
+             LEFT JOIN dependent d ON d.pin = m.pin
+             ${whereKeyword}${whereClause}
+             GROUP BY m.pin
+             ORDER BY m.member_full_name
+             LIMIT ? OFFSET ?`,
+            [...params, parseInt(limit), offset]
+        );  
+
+        res.json({
+            members,
+            pagination: {
+                total,
+                page: parseInt(page),
+                limit: parseInt(limit),
+                totalPages
+            }
+        });
+    } catch (error) {
+        console.error('Error searching members:', error);
+        res.status(500).json({ error: 'Failed to search members' });
+    }
+});
+
+// Get member details with dependents
+app.get('/api/admin/members/:pin', async (req, res) => {
+    const { pin } = req.params;
+
+    try {
+        // Get member details
+        const [memberRows] = await db.promise().query(
+            'SELECT * FROM member WHERE pin = ?',
+            [pin]
+        );
+
+        if (memberRows.length === 0) {
+            return res.status(404).json({ error: 'Member not found' });
+        }
+
+        const member = memberRows[0];
+
+        // Get dependents
+        const [dependents] = await db.promise().query(
+            'SELECT * FROM dependent WHERE pin = ?',
+            [pin]
+        );
+
+        // Get account status
+        const [accountRows] = await db.promise().query(
+            'SELECT email, created_at FROM account WHERE pin = ?',
+            [pin]
+        );
+
+        res.json({
+            member,
+            dependents,
+            account: accountRows[0] || null
+        });
+    } catch (error) {
+        console.error('Error fetching member details:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Update member information
+app.put('/api/admin/members/:pin', async (req, res) => {
+    const { pin } = req.params;
+    const updateData = req.body;
+
+    try {
+        // Remove any fields that shouldn't be updated
+        delete updateData.pin;
+        delete updateData.created_at;
+
+        if (updateData.date_of_birth && isFutureDate(updateData.date_of_birth)) {
+            return res.status(400).json({ error: 'Date of Birth cannot be in the future.' });
+        }
+
+        await db.promise().query(
+            'UPDATE member SET ? WHERE pin = ?',
+            [updateData, pin]
+        );
+
+        // Get updated member data
+        const [memberRows] = await db.promise().query(
+            'SELECT * FROM member WHERE pin = ?',
+            [pin]
+        );
+
+        res.json({
+            success: true,
+            member: memberRows[0]
+        });
+    } catch (error) {
+        console.error('Error updating member:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Generate member report
+app.get('/api/admin/members/:pin/report', async (req, res) => {
+    const { pin } = req.params;
+    const PDFDocument = require('pdfkit');
+    const doc = new PDFDocument();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=member-${pin}-report.pdf`);
+    doc.pipe(res);
+
+    try {
+        // Get member details
+        const [memberRows] = await db.promise().query(
+            'SELECT * FROM member WHERE pin = ?',
+            [pin]
+        );
+
+        if (memberRows.length === 0) {
+            doc.fontSize(14).fillColor('red').text('Member not found');
+            doc.end();
+            return;
+        }
+
+        const member = memberRows[0];
+
+        // Get dependents
+        const [dependents] = await db.promise().query(
+            'SELECT * FROM dependent WHERE pin = ?',
+            [pin]
+        );
+
+        // Generate PDF
+        doc.fontSize(25).text('Member Report', { align: 'center' });
+        doc.moveDown();
+
+        // Member Information
+        doc.fontSize(14).text('Member Information', { underline: true });
+        doc.moveDown();
+        doc.fontSize(12).text(`PIN: ${member.pin}`);
+        doc.text(`Name: ${member.member_full_name}`);
+        doc.text(`Member Type: ${member.member_type}`);
+        doc.text(`Civil Status: ${member.civil_status}`);
+        doc.text(`Citizenship: ${member.citizenship}`);
+        doc.moveDown();
+
+        // Contact Information
+        doc.fontSize(14).text('Contact Information', { underline: true });
+        doc.moveDown();
+        doc.fontSize(12).text(`Email: ${member.email_address || 'N/A'}`);
+        doc.text(`Mobile: ${member.mobile_no}`);
+        doc.text(`Home: ${member.home_no || 'N/A'}`);
+        doc.moveDown();
+
+        // Dependents
+        doc.fontSize(14).text('Dependents', { underline: true });
+        doc.moveDown();
+        if (dependents.length > 0) {
+            dependents.forEach(dep => {
+                doc.fontSize(12).text(`Name: ${dep.dependent_full_name}`);
+                doc.text(`Relationship: ${dep.dependent_relationship}`);
+                doc.text(`Date of Birth: ${formatDate(dep.dependent_date_of_birth)}`);
+                doc.text(`Citizenship: ${dep.dependent_citizenship}`);
+                doc.text(`PWD: ${dep.dependent_pwd}`);
+                doc.moveDown();
+            });
+        } else {
+            doc.fontSize(12).text('No dependents registered');
+        }
+
+        doc.end();
+    } catch (error) {
+        console.error('Error generating member report:', error);
+        doc.fontSize(14).fillColor('red').text('Error generating report');
+        doc.end();
+    }
+});
+
+// =============================================
+// ADMIN DEPENDENTS MANAGEMENT ENDPOINTS
+// =============================================
+
+/**
+ * Search dependents for admin management table (with pagination and filters)
+ * GET /api/admin/dependents/search
+ * Query params: searchTerm, relationship, citizenship, pwd, page, limit
+ * Returns: List of dependents (with member name) and pagination info
+ */
+app.get('/api/admin/dependents/search', async (req, res) => {
+    try {
+        const {
+            searchTerm,
+            relationship,
+            citizenship,
+            pwd,
+            page = 1,
+            limit = 10
+        } = req.query;
+
+        const offset = (page - 1) * limit;
+        const params = [];
+        let whereClause = '';
+        let whereKeyword = '';
+
+        // Build search conditions
+        if (searchTerm) {
+            whereClause += `d.dependent_full_name LIKE ? OR d.pin LIKE ?`;
+            const searchPattern = `%${searchTerm}%`;
+            params.push(searchPattern, searchPattern);
+        }
+        if (relationship) {
+            if (whereClause) whereClause += ' AND ';
+            whereClause += 'd.dependent_relationship = ?';
+            params.push(relationship);
+        }
+        if (citizenship) {
+            if (whereClause) whereClause += ' AND ';
+            whereClause += 'd.dependent_citizenship = ?';
+            params.push(citizenship);
+        }
+        if (pwd) {
+            if (whereClause) whereClause += ' AND ';
+            whereClause += 'd.dependent_pwd = ?';
+            params.push(pwd);
+        }
+        if (whereClause) {
+            whereKeyword = 'WHERE ';
+        }
+
+        // Get total count for pagination
+        const [countResult] = await db.promise().query(
+            `SELECT COUNT(*) as total 
+            FROM dependent d 
+            ${whereKeyword}${whereClause}`,
+            params
+        );
+        const total = countResult[0].total;
+        const totalPages = Math.ceil(total / limit);
+
+        // Get dependents with pagination and explicit aliases for all fields
+        const [dependents] = await db.promise().query(
+            `SELECT 
+                m.member_full_name,
+                d.dependent_full_name,
+                d.pin,
+                d.dependent_relationship,
+                d.dependent_date_of_birth,
+                d.dependent_citizenship,
+                d.dependent_pwd,
+                d.dependent_key
+            FROM dependent d
+            JOIN member m ON d.pin = m.pin
+            ${whereKeyword}${whereClause}
+            ORDER BY m.member_full_name
+             LIMIT ? OFFSET ?`,
+            [...params, parseInt(limit), offset]
+        );
+
+        res.json({
+            dependents,
+            pagination: {
+                total,
+                page: parseInt(page),
+                limit: parseInt(limit),
+                totalPages
+            }
+        });
+    } catch (error) {
+        console.error('Error searching dependents:', error);
+        res.status(500).json({ error: 'Failed to search dependents' });
+    }
+});
+
+/**
+ * Get a single dependent's details for admin view/edit modal
+ * GET /api/admin/dependents/:dependent_key
+ * Params: dependent_key
+ * Returns: Dependent object (fields for modal)
+ */
+app.get('/api/admin/dependents/:dependent_key', async (req, res) => {
+    const { dependent_key } = req.params;
+    try {
+        const [rows] = await db.promise().query(
+            `SELECT 
+                m.member_full_name,
+                d.dependent_full_name,
+                d.pin,
+                d.dependent_relationship,
+                d.dependent_date_of_birth,
+                d.dependent_citizenship,
+                d.dependent_pwd,
+                d.dependent_key
+            FROM dependent d
+            JOIN member m ON d.pin = m.pin
+            WHERE d.dependent_key = ?`,
+            [dependent_key]
+        );
+        if (rows.length === 0) return res.status(404).json({ error: 'Dependent not found' });
+        res.json(rows[0]);
+    } catch (err) {
+        console.error('Error fetching dependent details:', err);
+        res.status(500).json({ error: 'Database error' });
+    }
+});
+
+/**
+ * Update a single dependent's details (admin edit modal)
+ * PUT /api/admin/dependents/:dependent_key
+ * Params: dependent_key
+ * Body: dependent_full_name, dependent_relationship, dependent_date_of_birth, dependent_citizenship, dependent_pwd
+ * Returns: { success: true }
+ */
+app.put('/api/admin/dependents/:dependent_key', async (req, res) => {
+    const { dependent_key } = req.params;
+    const { dependent_full_name, dependent_relationship, dependent_date_of_birth, dependent_citizenship, dependent_pwd } = req.body;
+    try {
+        await db.promise().query(
+            `UPDATE dependent SET 
+                dependent_full_name = ?, 
+                dependent_relationship = ?, 
+                dependent_date_of_birth = ?, 
+                dependent_citizenship = ?, 
+                dependent_pwd = ?
+            WHERE dependent_key = ?`,
+            [dependent_full_name, dependent_relationship, dependent_date_of_birth, dependent_citizenship, dependent_pwd, dependent_key]
+        );
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Database error' });
+    }
+});
+
+/**
+ * Generate a PDF report for a dependent (admin action)
+ * GET /api/admin/dependents/:dependent_key/report
+ * Params: dependent_key
+ * Returns: PDF file (application/pdf)
+ */
+app.get('/api/admin/dependents/:dependent_key/report', async (req, res) => {
+    const { dependent_key } = req.params;
+    const PDFDocument = require('pdfkit');
+    const doc = new PDFDocument();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=dependent-${dependent_key}-report.pdf`);
+    doc.pipe(res);
+
+    try {
+        // Get dependent details
+        const [dependentRows] = await db.promise().query(
+            'SELECT * FROM dependent WHERE dependent_key = ?',
+            [dependent_key]
+        );
+
+        if (dependentRows.length === 0) {
+            doc.fontSize(14).fillColor('red').text('Dependent not found');
+            doc.end();
+            return;
+        }
+
+        const dependent = dependentRows[0];
+
+        // Generate PDF
+        doc.fontSize(25).text('Dependent Report', { align: 'center' });
+        doc.moveDown();
+
+        // Dependent Information
+        doc.fontSize(14).text('Dependent Information', { underline: true });
+        doc.moveDown();
+        doc.fontSize(12).text(`PIN: ${dependent.pin}`);
+        doc.text(`Name: ${dependent.dependent_full_name}`);
+        doc.text(`Relationship: ${dependent.dependent_relationship}`);
+        doc.text(`Date of Birth: ${formatDate(dependent.dependent_date_of_birth)}`);
+        doc.text(`Citizenship: ${dependent.dependent_citizenship}`);
+        doc.text(`PWD: ${dependent.dependent_pwd}`);
+        doc.moveDown();
+
+        doc.end();
+    } catch (error) {
+        console.error('Error generating dependent report:', error);
+        doc.fontSize(14).fillColor('red').text('Error generating report');
+        doc.end();
+    }
 });
 
 // Error handling middleware

@@ -316,4 +316,46 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('An error occurred during registration. Please try again.');
         });
     });
-}); 
+
+    // Helper: Validate date of birth is not in the future
+    function isFutureDate(dateString) {
+        const date = new Date(dateString);
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        return date > today;
+    }
+
+    // Add to memberForm submit logic
+    if (memberForm) {
+        memberForm.addEventListener('submit', function(e) {
+            // Validate member date of birth
+            const dobInput = document.getElementById('dateOfBirth');
+            if (dobInput && dobInput.value && isFutureDate(dobInput.value)) {
+                alert('Date of Birth cannot be in the future.');
+                dobInput.focus();
+                e.preventDefault();
+                return;
+            }
+            // Validate dependents' DOBs
+            if (dependents && dependents.length > 0) {
+                for (const dep of dependents) {
+                    if (!dep.dob || isFutureDate(dep.dob)) {
+                        alert('Cannot add dependent: Date of Birth is missing or in the future.');
+                        e.preventDefault();
+                        return;
+                    }
+                }
+            }
+        }, true);
+    }
+
+    // When adding a dependent, prevent adding if DOB is missing or in the future
+    function addDependent(dep) {
+        if (!dep.dob || isFutureDate(dep.dob)) {
+            alert('Cannot add dependent: Date of Birth is missing or in the future.');
+            return false;
+        }
+        // ...existing logic to add dependent...
+        return true;
+    }
+});

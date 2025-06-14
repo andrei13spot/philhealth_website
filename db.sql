@@ -15,8 +15,8 @@ CREATE TABLE member (
     citizenship VARCHAR(50) NOT NULL CHECK (citizenship IN (
         'Filipino', 'Dual Citizen', 'Foreign National'
     )),
-    philsys_id VARCHAR(20),
-    tin VARCHAR(20),
+    philsys_id VARCHAR(20) UNIQUE,
+    tin VARCHAR(20) UNIQUE, 
     permanent_address VARCHAR(100) NOT NULL,
     mailing_address VARCHAR(100) NOT NULL,
     home_no VARCHAR(20),
@@ -32,7 +32,9 @@ CREATE TABLE dependent (
     dependent_key INT AUTO_INCREMENT PRIMARY KEY, -- changed from varchar to int
     pin VARCHAR(20),
     dependent_full_name VARCHAR(50) NOT NULL,
-    dependent_relationship VARCHAR(25) NOT NULL,
+    dependent_relationship VARCHAR(25) NOT NULL CHECK (dependent_relationship IN (
+        'Spouse', 'Child', 'Parent', 'Other'
+    )),
     dependent_date_of_birth DATE NOT NULL,
     dependent_citizenship VARCHAR(50) NOT NULL,
     dependent_pwd VARCHAR(3) NOT NULL CHECK (dependent_pwd IN ('yes', 'no')),

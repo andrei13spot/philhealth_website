@@ -1,0 +1,65 @@
+/* Welcome Page Custom Styles */
+.welcome-btn {
+    width: 100%;
+    max-width: 400px;
+    padding: 18px 0;
+    font-size: 1.3em;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    margin: 10px 0;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    display: block;
+}
+.welcome-btn.admin {
+    background: #d32f2f;
+}
+.welcome-btn.admin:hover {
+    background: #b71c1c;
+}
+.welcome-btn.member {
+    background: #8dc63f;
+}
+.welcome-btn.member:hover {
+    background: #6fa32b;
+}
+.welcome-message {
+    font-size: 2.1em;
+    font-weight: bold;
+    color: #222;
+    margin-bottom: 10px;
+}
+.welcome-subtitle {
+    color: #444;
+    font-size: 1.1em;
+    margin-bottom: 30px;
+}
+.welcome-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    max-width: 430px;
+    width: 95vw;
+    padding: 36px 32px 24px 32px;
+    margin: 0 auto;
+    text-align: center;
+}
+.welcome-logo img {
+    max-width: 120px;
+    margin-bottom: 18px;
+}
+.welcome-terms {
+    margin-top: 30px;
+    font-size: 0.98em;
+    color: #555;
+}
+.welcome-terms a {
+    color: #007bff;
+    text-decoration: underline;
+}
+.welcome-terms a:hover {
+    color: #0056b3;
+} 

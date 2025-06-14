@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Dropdown options (should match registration form)
             const relationshipOptions = [
-                'Select Relationship    ', 'Spouse', 'Child', 'Parent', 'Sibling', 'Other'
+                'Select Relationship    ', 'Spouse', 'Child', 'Parent', 'Other'
             ];
             const citizenshipOptions = [
                 'Select Citizenship', 'Filipino', 'Dual Citizen', 'Foreigner'

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Dashboard - PhilHealth Portal</title>
+    <link rel="stylesheet" href="dashboard.css" />
+    <link rel="stylesheet" href="admin-dashboard.css" />
+    <link rel="icon" href="weblogo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="header-bar">
+        <img src="topbarlogo.png" alt="PhilHealth Logo" class="logo" />
+        <button class="burger-btn" id="burgerBtn">&#9776;</button>
+    </div>
+    <div class="sidebar open" id="sidebar">
+        <div class="sidebar-logo-bar">
+            <img src="topbarlogo.png" class="logo" alt="PhilHealth Logo" />
+        </div>
+        <div class="sidebar-content">
+            <div class="sidebar-header">
+                <div class="sidebar-user">Admin</div>
+                <hr style="border:1px solid #2e2c2c;margin:10px 0 0 0;" />
+            </div>
+            <div class="nav">
+                <a href="admin-dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i>Overview</a>
+                <a href="admin-members.html"><i class="fas fa-users"></i>Members</a>
+                <a href="admin-dependents.html"><i class="fas fa-users"></i>Dependents</a>
+                <a href="admin-accounts.html"><i class="fas fa-user"></i>Accounts</a>
+                <a href="admin-reports.html"><i class="fas fa-chart-bar"></i>Reports</a>
+                <a href="admin-docs.html"><i class="fas fa-database"></i>Documentation</a>
+                <a href="index.html" class="logout"><i class="fas fa-sign-out-alt"></i>Log Out</a>
+            </div>
+        </div>
+    </div>
+    <div class="overlay" id="sidebarOverlay"></div>
+    <div class="main-content shifted">
+        <div class="member-card">
+            <h2>Overview</h2>
+            <div class="overview-container">
+                <!-- Statistics Cards -->
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <div class="stat-info">
+                            <h3>Total Members</h3>
+                            <p id="totalMembers">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-child"></i>
+                        <div class="stat-info">
+                            <h3>Total Dependents</h3>
+                            <p id="totalDependents">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-check-circle"></i>
+                        <div class="stat-info">
+                            <h3>Active Accounts</h3>
+                            <p id="activeAccounts">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity and Quick Actions -->
+                <div class="overview-grid">
+                    <div class="activity-card">
+                        <h3>Recent Activity</h3>
+                        <ul class="activity-list" id="activityList">
+                            <!-- Activity items will be dynamically added here -->
+                        </ul>
+                    </div>
+                    <div class="quick-actions-card">
+                        <h3>Quick Actions</h3>
+                        <div class="quick-actions-list">
+                            <button class="action-btn" id="addMemberBtn">
+                                <i class="fas fa-plus"></i> Add New Member
+                            </button>
+                            <button class="action-btn" id="generateReportBtn">
+                                <i class="fas fa-download"></i> Generate Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Status -->
+                <div class="system-status-card">
+                    <h3>System Status</h3>
+                    <div class="status-items">
+                        <div class="status-item">
+                            <span class="status-label">Database:</span>
+                            <span class="status-indicator" id="dbStatus">Online</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">API Services:</span>
+                            <span class="status-indicator" id="apiStatus">Online</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    // Sidebar toggle for mobile
+    document.getElementById('burgerBtn').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebarOverlay').classList.toggle('show');
+    });
+    document.getElementById('sidebarOverlay').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.remove('open');
+        this.classList.remove('show');
+    });
+    </script>
+    <script src="admin-dashboard.js"></script>
+</body>
+</html> 

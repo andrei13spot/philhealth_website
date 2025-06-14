@@ -57,21 +57,21 @@
         </div>
     </div>
     <script>
-    // Custom checkbox styling
-    document.querySelectorAll('.custom-checkbox input[type="checkbox"]').forEach(function(checkbox) {
-        checkbox.addEventListener('change', function() {
-            // Optionally enable/disable the button
-            document.getElementById('agreeBtn').disabled = !this.checked;
+        // Custom checkbox styling
+        document.querySelectorAll('.custom-checkbox input[type="checkbox"]').forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                // Optionally enable/disable the button
+                document.getElementById('agreeBtn').disabled = !this.checked;
+            });
         });
-    });
-    // Initially disable the button
-    document.getElementById('agreeBtn').disabled = true;
-    // Redirect to form.html on Agree and Accept
-    document.getElementById('agreeBtn').addEventListener('click', function() {
-        if (!this.disabled) {
-            window.location.href = 'form.html';
-        }
-    });
-    </script>
+        // Initially disable the button
+        document.getElementById('agreeBtn').disabled = true;
+        // Redirect to form.html on Agree and Accept
+        document.getElementById('agreeBtn').addEventListener('click', function() {
+            if (!this.disabled) {
+                window.location.href = 'form.html';
+            }
+        });
+        </script>
 </body>
 </html> 
