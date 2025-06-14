@@ -16,6 +16,76 @@ This project is a full-stack web application for managing PhilHealth member acco
 - **Health Check**: `/health` endpoint to monitor server and database status.
 - **Modern UI**: Responsive, user-friendly HTML/CSS frontend.
 
+## Additional Functionality Overview
+
+### Admin Features
+- **Admin Dashboard**: View statistics (total members, dependents, active accounts) and recent activities.
+- **Member Management**: Search, filter, view, edit, and generate reports for members. Supports pagination and advanced filtering (by PIN, name, email, mobile, type, status, citizenship).
+- **Dependents Management**: Search, filter, view, edit, and generate reports for dependents. Supports filtering by dependent name, PIN, relationship, citizenship, and PWD status. Pagination included.
+- **Account Management**: View and manage user accounts, including creation and deletion.
+- **Reports**: Generate PDF reports for members and dependents, including all relevant details.
+- **Documentation**: Access system documentation from the admin sidebar.
+
+### Search, Filtering, and Pagination
+- **Dynamic Search**: All management tables support dynamic search with multiple filters. Search is case-insensitive and supports partial matches.
+- **Advanced Filtering**: Filter by relationship, citizenship, PWD status (dependents), and by type, status, citizenship (members).
+- **Pagination**: All tables support pagination with navigation controls and current page display.
+
+### CRUD Operations
+- **Create**: Add new members and dependents during registration.
+- **Read**: View detailed information for members and dependents, including all fields and relationships.
+- **Update**: Edit member and dependent details with real-time validation and feedback.
+- **Delete**: Remove accounts and dependents with confirmation dialogs.
+
+### Validation and Error Handling
+- **Input Validation**: All forms validate input in real-time (e.g., PhilHealth ID, email, password strength, date of birth not in the future).
+- **Server-Side Validation**: Backend checks for duplicate PINs, valid dates, and required fields.
+- **Error Handling**: User-friendly error messages for all failed operations, including database and network errors.
+
+### Security
+- **Password Hashing**: All passwords are hashed using bcryptjs before storage.
+- **CAPTCHA**: Required for registration and login to prevent bots.
+- **Session Management**: Secure login and logout flows.
+
+### Reporting
+- **PDF Generation**: Admins can generate PDF reports for members and dependents, including all relevant details and recent activities.
+- **Downloadable Reports**: Reports are downloadable directly from the admin interface.
+
+### UI/UX
+- **Responsive Design**: All pages are mobile-friendly and adapt to different screen sizes.
+- **Modern UI**: Clean, intuitive interface with clear navigation and feedback.
+- **Sidebar Navigation**: Persistent sidebar for quick access to all admin features.
+- **Accordion Sections**: Dashboard uses accordions for organized display of member, contact, and dependent information.
+
+### Backend Endpoints (RESTful API)
+- **/api/admin/members/search**: Search and filter members with pagination.
+- **/api/admin/members/:pin**: Get, update, or report on a specific member.
+- **/api/admin/dependents/search**: Search and filter dependents with pagination.
+- **/api/admin/dependents/:dependent_key**: Get, update, or report on a specific dependent.
+- **/api/admin/dashboard/stats**: Get dashboard statistics.
+- **/api/admin/dashboard/activities**: Get recent activities.
+- **/api/member-info**: Get member and dependents info for the logged-in user.
+- **/api/user-profile**: Get user profile info.
+- **/api/update-member-contact**: Update member contact details.
+- **/api/update-dependents**: Update dependents for a member.
+- **/api/check-pin**: Check if a PIN exists.
+- **/api/check-account**: Check if an account exists for a PIN.
+- **/health**: Health check for server and database.
+
+### SQL Query Complexity
+- **Simple**: Single-table queries (e.g., check PIN, get member by PIN).
+- **Difficult**: Any query with a JOIN (e.g., admin dependents search, member search with dependent count, dependent details with member info).
+- **All queries are parameterized to prevent SQL injection.**
+
+### Miscellaneous
+- **Graceful Shutdown**: Server handles SIGTERM and SIGINT for safe shutdown.
+- **Robust Error Logging**: All errors are logged with details for easier debugging.
+- **Extensible Structure**: Codebase is organized for easy extension and maintenance.
+
+---
+
+*This section was added to provide a comprehensive overview of all backend and frontend functionalities, including admin features, search, filtering, pagination, validation, error handling, and reporting, as implemented in the project codebase.*
+
 ## Setup
 1. **Clone the Repository**: Clone the repository to your local machine.
 2. **Install Dependencies**: Navigate to the project directory and run `npm install` to install the necessary dependencies.
