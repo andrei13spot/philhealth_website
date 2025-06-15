@@ -249,9 +249,32 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Final submit
-    finalSubmitBtn.addEventListener('click', function() {
+    finalSubmitBtn.addEventListener('click', async function() {
         warningModal.style.display = 'none';
-        // Instead of submitting the form, send data via fetch to /register
+        
+        // Get TIN and PhilSys values
+        const tin = document.getElementById('tin').value;
+        const philsysId = document.getElementById('philsysId').value;
+        
+        // Check if TIN exists
+        if (tin) {
+            const tinExists = await checkTinExists(tin);
+            if (tinExists) {
+                alert('This TIN number is already registered in the system.');
+                return;
+            }
+        }
+        
+        // Check if PhilSys ID exists
+        if (philsysId) {
+            const philsysExists = await checkPhilSysExists(philsysId);
+            if (philsysExists) {
+                alert('This PhilSys ID is already registered in the system.');
+                return;
+            }
+        }
+
+        // Continue with existing registration logic...
         const member = {};
         // Collect all member fields
         [
@@ -357,5 +380,63 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         // ...existing logic to add dependent...
         return true;
+    }
+
+    async function checkTinExists(tin) {
+        try {
+            const response = await fetch(`http://localhost:3000/api/check-tin?tin=${encodeURIComponent(tin)}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            return data.exists;
+        } catch (error) {
+            console.error('Error checking TIN:', error);
+            return false;
+        }
+    }
+
+    async function checkPhilSysExists(philsysId) {
+        try {
+            const response = await fetch(`http://localhost:3000/api/check-philsys?philsysId=${encodeURIComponent(philsysId)}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            return data.exists;
+        } catch (error) {
+            console.error('Error checking PhilSys ID:', error);
+            return false;
+        }
+    }
+
+    // Real-time TIN validation
+    if (tin) {
+        tin.addEventListener('blur', async function() {
+            if (this.value) {
+                const exists = await checkTinExists(this.value);
+                if (exists) {
+                    this.style.borderColor = '#e53935';
+                    alert('This TIN number is already registered in the system.');
+                } else {
+                    this.style.borderColor = '';
+                }
+            }
+        });
+    }
+
+    // Real-time PhilSys validation
+    if (philsysId) {
+        philsysId.addEventListener('blur', async function() {
+            if (this.value) {
+                const exists = await checkPhilSysExists(this.value);
+                if (exists) {
+                    this.style.borderColor = '#e53935';
+                    alert('This PhilSys ID is already registered in the system.');
+                } else {
+                    this.style.borderColor = '';
+                }
+            }
+        });
     }
 });

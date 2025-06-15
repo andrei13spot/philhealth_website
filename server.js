@@ -234,6 +234,40 @@ app.get('/api/check-account', (req, res) => {
     });
 });
 
+// Check if TIN exists
+app.get('/api/check-tin', (req, res) => {
+    const tin = req.query.tin;
+    if (!tin) {
+        return res.status(400).json({ exists: false, error: 'No TIN provided' });
+    }
+    
+    const query = 'SELECT tin FROM member WHERE tin = ?';
+    db.query(query, [tin], (err, results) => {
+        if (err) {
+            console.error('Error checking TIN:', err);
+            return res.status(500).json({ exists: false, error: 'Database error' });
+        }
+        res.json({ exists: results.length > 0 });
+    });
+});
+
+// Check if PhilSys ID exists
+app.get('/api/check-philsys', (req, res) => {
+    const philsysId = req.query.philsysId;
+    if (!philsysId) {
+        return res.status(400).json({ exists: false, error: 'No PhilSys ID provided' });
+    }
+    
+    const query = 'SELECT philsys_id FROM member WHERE philsys_id = ?';
+    db.query(query, [philsysId], (err, results) => {
+        if (err) {
+            console.error('Error checking PhilSys ID:', err);
+            return res.status(500).json({ exists: false, error: 'Database error' });
+        }
+        res.json({ exists: results.length > 0 });
+    });
+});
+
 // Create Account Endpoint
 app.post('/create-account', async (req, res) => {
     try {
@@ -716,6 +750,7 @@ app.get('/api/admin/members/search', async (req, res) => {
              LEFT JOIN dependent d ON d.pin = m.pin
              ${whereKeyword}${whereClause}
              GROUP BY m.pin
+             HAVING dependentCount >= 0
              ORDER BY m.member_full_name
              LIMIT ? OFFSET ?`,
             [...params, parseInt(limit), offset]
@@ -888,16 +923,7 @@ app.get('/api/admin/members/:pin/report', async (req, res) => {
     }
 });
 
-// =============================================
-// ADMIN DEPENDENTS MANAGEMENT ENDPOINTS
-// =============================================
-
-/**
- * Search dependents for admin management table (with pagination and filters)
- * GET /api/admin/dependents/search
- * Query params: searchTerm, relationship, citizenship, pwd, page, limit
- * Returns: List of dependents (with member name) and pagination info
- */
+// Dependents search endpoint (uniform with members)
 app.get('/api/admin/dependents/search', async (req, res) => {
     try {
         const {
@@ -916,54 +942,44 @@ app.get('/api/admin/dependents/search', async (req, res) => {
 
         // Build search conditions
         if (searchTerm) {
-            whereClause += `d.dependent_full_name LIKE ? OR d.pin LIKE ?`;
+            whereClause += `dependent_full_name LIKE ? OR pin LIKE ?`;
             const searchPattern = `%${searchTerm}%`;
             params.push(searchPattern, searchPattern);
         }
         if (relationship) {
             if (whereClause) whereClause += ' AND ';
-            whereClause += 'd.dependent_relationship = ?';
+            whereClause += 'dependent_relationship = ?';
             params.push(relationship);
         }
         if (citizenship) {
             if (whereClause) whereClause += ' AND ';
-            whereClause += 'd.dependent_citizenship = ?';
+            whereClause += 'dependent_citizenship = ?';
             params.push(citizenship);
         }
         if (pwd) {
             if (whereClause) whereClause += ' AND ';
-            whereClause += 'd.dependent_pwd = ?';
+            whereClause += 'dependent_pwd = ?';
             params.push(pwd);
         }
         if (whereClause) {
             whereKeyword = 'WHERE ';
         }
 
-        // Get total count for pagination
+        // get total count for pagination
         const [countResult] = await db.promise().query(
-            `SELECT COUNT(*) as total 
-            FROM dependent d 
-            ${whereKeyword}${whereClause}`,
+            `SELECT COUNT(*) as total FROM dependent ${whereKeyword}${whereClause}`,
             params
         );
         const total = countResult[0].total;
         const totalPages = Math.ceil(total / limit);
 
-        // Get dependents with pagination and explicit aliases for all fields
+        // Get dependents with pagination
         const [dependents] = await db.promise().query(
-            `SELECT 
-                m.member_full_name,
-                d.dependent_full_name,
-                d.pin,
-                d.dependent_relationship,
-                d.dependent_date_of_birth,
-                d.dependent_citizenship,
-                d.dependent_pwd,
-                d.dependent_key
-            FROM dependent d
-            JOIN member m ON d.pin = m.pin
-            ${whereKeyword}${whereClause}
-            ORDER BY m.member_full_name
+            `SELECT d.*, m.member_full_name 
+             FROM dependent d 
+             JOIN member m ON d.pin = m.pin 
+             ${whereKeyword}${whereClause ? ' AND ' + whereClause : ''} 
+             ORDER BY d.dependent_full_name 
              LIMIT ? OFFSET ?`,
             [...params, parseInt(limit), offset]
         );
@@ -983,45 +999,22 @@ app.get('/api/admin/dependents/search', async (req, res) => {
     }
 });
 
-/**
- * Get a single dependent's details for admin view/edit modal
- * GET /api/admin/dependents/:dependent_key
- * Params: dependent_key
- * Returns: Dependent object (fields for modal)
- */
+// Get a single dependent (View)
 app.get('/api/admin/dependents/:dependent_key', async (req, res) => {
     const { dependent_key } = req.params;
     try {
         const [rows] = await db.promise().query(
-            `SELECT 
-                m.member_full_name,
-                d.dependent_full_name,
-                d.pin,
-                d.dependent_relationship,
-                d.dependent_date_of_birth,
-                d.dependent_citizenship,
-                d.dependent_pwd,
-                d.dependent_key
-            FROM dependent d
-            JOIN member m ON d.pin = m.pin
-            WHERE d.dependent_key = ?`,
+            'SELECT * FROM dependent WHERE dependent_key = ?',
             [dependent_key]
         );
         if (rows.length === 0) return res.status(404).json({ error: 'Dependent not found' });
         res.json(rows[0]);
     } catch (err) {
-        console.error('Error fetching dependent details:', err);
         res.status(500).json({ error: 'Database error' });
     }
 });
 
-/**
- * Update a single dependent's details (admin edit modal)
- * PUT /api/admin/dependents/:dependent_key
- * Params: dependent_key
- * Body: dependent_full_name, dependent_relationship, dependent_date_of_birth, dependent_citizenship, dependent_pwd
- * Returns: { success: true }
- */
+// Edit a dependent (Edit)
 app.put('/api/admin/dependents/:dependent_key', async (req, res) => {
     const { dependent_key } = req.params;
     const { dependent_full_name, dependent_relationship, dependent_date_of_birth, dependent_citizenship, dependent_pwd } = req.body;
@@ -1039,59 +1032,6 @@ app.put('/api/admin/dependents/:dependent_key', async (req, res) => {
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: 'Database error' });
-    }
-});
-
-/**
- * Generate a PDF report for a dependent (admin action)
- * GET /api/admin/dependents/:dependent_key/report
- * Params: dependent_key
- * Returns: PDF file (application/pdf)
- */
-app.get('/api/admin/dependents/:dependent_key/report', async (req, res) => {
-    const { dependent_key } = req.params;
-    const PDFDocument = require('pdfkit');
-    const doc = new PDFDocument();
-
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=dependent-${dependent_key}-report.pdf`);
-    doc.pipe(res);
-
-    try {
-        // Get dependent details
-        const [dependentRows] = await db.promise().query(
-            'SELECT * FROM dependent WHERE dependent_key = ?',
-            [dependent_key]
-        );
-
-        if (dependentRows.length === 0) {
-            doc.fontSize(14).fillColor('red').text('Dependent not found');
-            doc.end();
-            return;
-        }
-
-        const dependent = dependentRows[0];
-
-        // Generate PDF
-        doc.fontSize(25).text('Dependent Report', { align: 'center' });
-        doc.moveDown();
-
-        // Dependent Information
-        doc.fontSize(14).text('Dependent Information', { underline: true });
-        doc.moveDown();
-        doc.fontSize(12).text(`PIN: ${dependent.pin}`);
-        doc.text(`Name: ${dependent.dependent_full_name}`);
-        doc.text(`Relationship: ${dependent.dependent_relationship}`);
-        doc.text(`Date of Birth: ${formatDate(dependent.dependent_date_of_birth)}`);
-        doc.text(`Citizenship: ${dependent.dependent_citizenship}`);
-        doc.text(`PWD: ${dependent.dependent_pwd}`);
-        doc.moveDown();
-
-        doc.end();
-    } catch (error) {
-        console.error('Error generating dependent report:', error);
-        doc.fontSize(14).fillColor('red').text('Error generating report');
-        doc.end();
     }
 });
 
